@@ -25,9 +25,17 @@ nonisolated struct GameState: Hashable, Sendable {
     private(set) var capturedByWhite: UInt64
     /// 状态修订号，每接受一个动作递增一次。
     private(set) var revision: UInt64
+    /// 情境超级劫历史，创建成功的初始状态键即已写入。
+    private(set) var superkoSeen: SuperkoHistory
+    /// 私有权威日志，只记录已接受的动作。
+    private(set) var log: GameLog
 
     /// 由配置创建初始状态。
-    init(configuration: GameConfiguration) {
+    ///
+    /// - Parameters:
+    ///   - configuration: 已校验的创建配置。
+    ///   - digester: 计算超级劫摘要使用的实现。
+    init(configuration: GameConfiguration, digester: any StateKeyDigesting = StateKeyDigestV1()) {
         self.configuration = configuration
         self.board = configuration.board
         self.nextPlayer = configuration.nextPlayer
@@ -35,6 +43,10 @@ nonisolated struct GameState: Hashable, Sendable {
         self.capturedByBlack = 0
         self.capturedByWhite = 0
         self.revision = 0
+        self.superkoSeen = SuperkoHistory()
+        self.log = GameLog(header: GameLogHeader(configuration: configuration))
+        let key = StateKey(board: board, nextPlayer: nextPlayer)
+        self.superkoSeen.insert(key, digest: digester.digest(key))
     }
 
     /// 由完整字段创建状态。
@@ -47,7 +59,9 @@ nonisolated struct GameState: Hashable, Sendable {
         phase: GamePhase,
         capturedByBlack: UInt64,
         capturedByWhite: UInt64,
-        revision: UInt64
+        revision: UInt64,
+        superkoSeen: SuperkoHistory = SuperkoHistory(),
+        log: GameLog? = nil
     ) {
         self.configuration = configuration
         self.board = board
@@ -56,6 +70,8 @@ nonisolated struct GameState: Hashable, Sendable {
         self.capturedByBlack = capturedByBlack
         self.capturedByWhite = capturedByWhite
         self.revision = revision
+        self.superkoSeen = superkoSeen
+        self.log = log ?? GameLog(header: GameLogHeader(configuration: configuration))
     }
 
     /// 指定一方累计提走的敌方棋子颗数。
@@ -69,8 +85,18 @@ nonisolated struct GameState: Hashable, Sendable {
     ///   - board: 已经完成提子的候选棋盘。
     ///   - capturedCount: 本次提走的敌方棋子颗数。
     ///   - actor: 落子方。
+    ///   - stateKey: 落子后的完整状态键。
+    ///   - digest: 该状态键的摘要。
+    ///   - action: 写入权威日志的完整动作载荷。
     /// - Throws: 提子计数或修订号 checked 运算溢出时抛出 ``RuleViolation/arithmeticOverflow``。
-    mutating func commitPlacement(board: Board, capturedCount: Int, actor: Stone) throws {
+    mutating func commitPlacement(
+        board: Board,
+        capturedCount: Int,
+        actor: Stone,
+        stateKey: StateKey,
+        digest: UInt64,
+        action: GameAction
+    ) throws {
         let (captured, capturedOverflow) = capturedStones(by: actor)
             .addingReportingOverflow(UInt64(capturedCount))
         guard !capturedOverflow else { throw RuleViolation.arithmeticOverflow }
@@ -84,5 +110,7 @@ nonisolated struct GameState: Hashable, Sendable {
         }
         self.nextPlayer = actor.opponent
         self.revision = nextRevision
+        self.superkoSeen.insert(stateKey, digest: digest)
+        self.log.append(revision: nextRevision, action: action)
     }
 }

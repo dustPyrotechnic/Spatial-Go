@@ -13,13 +13,38 @@ nonisolated enum RuleViolation: Error, Equatable, Sendable {
 nonisolated struct RuleEngine: Sendable {
     /// 当前权威规则状态。
     private(set) var state: GameState
+    /// 计算超级劫摘要使用的实现。
+    private let digester: any StateKeyDigesting
 
-    init(configuration: GameConfiguration) {
-        self.state = GameState(configuration: configuration)
+    init(
+        configuration: GameConfiguration,
+        digester: any StateKeyDigesting = StateKeyDigestV1()
+    ) {
+        self.state = GameState(configuration: configuration, digester: digester)
+        self.digester = digester
     }
 
-    init(state: GameState) {
+    init(state: GameState, digester: any StateKeyDigesting = StateKeyDigestV1()) {
         self.state = state
+        self.digester = digester
+    }
+
+    /// 由权威日志确定性重放一局棋。
+    ///
+    /// - Parameters:
+    ///   - log: 待重放的权威日志。
+    ///   - digester: 计算超级劫摘要使用的实现。
+    /// - Returns: 重放到日志末尾的规则引擎。
+    /// - Throws: 日志中出现不能被规则接受的动作时抛出 ``RuleViolation``。
+    static func replaying(
+        _ log: GameLog,
+        digester: any StateKeyDigesting = StateKeyDigestV1()
+    ) throws -> RuleEngine {
+        var engine = RuleEngine(configuration: log.header.configuration, digester: digester)
+        for entry in log.entries {
+            try engine.apply(entry.action)
+        }
+        return engine
     }
 
     /// 应用一个动作。
@@ -58,11 +83,20 @@ nonisolated struct RuleEngine: Sendable {
             throw RuleViolation.suicide
         }
 
+        let key = StateKey(board: candidate, nextPlayer: actor.opponent)
+        let digest = digester.digest(key)
+        guard !state.superkoSeen.contains(key, digest: digest) else {
+            throw RuleViolation.superko
+        }
+
         var committed = state
         try committed.commitPlacement(
             board: candidate,
             capturedCount: capturedPositions.count,
-            actor: actor
+            actor: actor,
+            stateKey: key,
+            digest: digest,
+            action: action
         )
         state = committed
 
