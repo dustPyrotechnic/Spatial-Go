@@ -8,7 +8,18 @@
 
 /* Begin PBXFileReference section */
 		CAC0C87130480021007C3B7C /* Three-dimensional Go.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Three-dimensional Go.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CAD0C88130480021007C3B7C /* Three-dimensional GoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Three-dimensional GoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXContainerItemProxy section */
+		CAD0C88730480021007C3B7C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CAC0C86930480021007C3B7C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CAC0C87030480021007C3B7C;
+			remoteInfo = "Three-dimensional Go";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CAC0C87330480021007C3B7C /* Three-dimensional Go */ = {
@@ -16,10 +27,22 @@
 			path = "Three-dimensional Go";
 			sourceTree = "<group>";
 		};
+		CAD0C88230480021007C3B7C /* Three-dimensional GoTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Three-dimensional GoTests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		CAC0C86E30480021007C3B7C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CAD0C88430480021007C3B7C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -33,6 +56,7 @@
 			isa = PBXGroup;
 			children = (
 				CAC0C87330480021007C3B7C /* Three-dimensional Go */,
+				CAD0C88230480021007C3B7C /* Three-dimensional GoTests */,
 				CAC0C87230480021007C3B7C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,6 +65,7 @@
 			isa = PBXGroup;
 			children = (
 				CAC0C87130480021007C3B7C /* Three-dimensional Go.app */,
+				CAD0C88130480021007C3B7C /* Three-dimensional GoTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -70,6 +95,29 @@
 			productReference = CAC0C87130480021007C3B7C /* Three-dimensional Go.app */;
 			productType = "com.apple.product-type.application";
 		};
+		CAD0C88030480021007C3B7C /* Three-dimensional GoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CAD0C88830480021007C3B7C /* Build configuration list for PBXNativeTarget "Three-dimensional GoTests" */;
+			buildPhases = (
+				CAD0C88330480021007C3B7C /* Sources */,
+				CAD0C88430480021007C3B7C /* Frameworks */,
+				CAD0C88530480021007C3B7C /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CAD0C88630480021007C3B7C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CAD0C88230480021007C3B7C /* Three-dimensional GoTests */,
+			);
+			name = "Three-dimensional GoTests";
+			packageProductDependencies = (
+			);
+			productName = "Three-dimensional GoTests";
+			productReference = CAD0C88130480021007C3B7C /* Three-dimensional GoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -82,6 +130,10 @@
 				TargetAttributes = {
 					CAC0C87030480021007C3B7C = {
 						CreatedOnToolsVersion = 26.6;
+					};
+					CAD0C88030480021007C3B7C = {
+						CreatedOnToolsVersion = 27.0;
+						TestTargetID = CAC0C87030480021007C3B7C;
 					};
 				};
 			};
@@ -100,12 +152,20 @@
 			projectRoot = "";
 			targets = (
 				CAC0C87030480021007C3B7C /* Three-dimensional Go */,
+				CAD0C88030480021007C3B7C /* Three-dimensional GoTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		CAC0C86F30480021007C3B7C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CAD0C88530480021007C3B7C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +182,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CAD0C88330480021007C3B7C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CAD0C88630480021007C3B7C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CAC0C87030480021007C3B7C /* Three-dimensional Go */;
+			targetProxy = CAD0C88730480021007C3B7C /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		CAC0C87A30480022007C3B7C /* Debug */ = {
@@ -310,6 +385,50 @@
 			};
 			name = Release;
 		};
+		CAD0C88930480021007C3B7C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LF6C69B29M;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.Three-dimensional-GoTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Three-dimensional Go.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Three-dimensional Go";
+			};
+			name = Debug;
+		};
+		CAD0C88A30480021007C3B7C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LF6C69B29M;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.Three-dimensional-GoTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Three-dimensional Go.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Three-dimensional Go";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -327,6 +446,15 @@
 			buildConfigurations = (
 				CAC0C87D30480022007C3B7C /* Debug */,
 				CAC0C87E30480022007C3B7C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CAD0C88830480021007C3B7C /* Build configuration list for PBXNativeTarget "Three-dimensional GoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CAD0C88930480021007C3B7C /* Debug */,
+				CAD0C88A30480021007C3B7C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
