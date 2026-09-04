@@ -79,6 +79,18 @@ nonisolated struct GameState: Hashable, Sendable {
         player == .black ? capturedByBlack : capturedByWhite
     }
 
+    /// 按当前棋盘和创建时的贴目做三维面积计分。
+    ///
+    /// - Parameter deadStones: 双方约定的死棋坐标，计分前移除；缺省为空。
+    /// - Returns: 完整计分明细。
+    func areaScore(removingDeadStones deadStones: Set<GridPosition> = []) -> AreaScoreBreakdown {
+        TerritoryScorer.score(
+            board: board,
+            removingDeadStones: deadStones,
+            komiHalfPoints: configuration.komiHalfPoints
+        )
+    }
+
     /// 原子提交一次已通过全部校验的落子结果。
     ///
     /// - Parameters:
