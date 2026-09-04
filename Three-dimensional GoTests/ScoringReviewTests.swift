@@ -32,6 +32,18 @@ struct ScoringReviewTests {
         return try #require(engine.state.currentReviewID)
     }
 
+    /// 进入审核并让双方提交两份**不同**的死棋集合。
+    ///
+    /// 依据设计 §3.4，只有到达这个状态才允许请求恢复对局。
+    @discardableResult
+    private func enterDisagreement(_ engine: inout RuleEngine) throws -> ReviewID {
+        let reviewID = try enterReview(&engine)
+        _ = try engine.apply(.submitDeadGroups(actor: .black, groups: [whiteGroup(reviewID)]))
+        _ = try engine.apply(.submitDeadGroups(actor: .white, groups: []))
+        #expect(engine.state.phase == .scoringReview)
+        return reviewID
+    }
+
     private func blackGroup(_ reviewID: ReviewID) -> GroupID {
         GroupID(reviewID: reviewID, color: .black, anchor: GridPosition(x: 0, y: 0, z: 0))
     }
@@ -155,17 +167,52 @@ struct ScoringReviewTests {
         #expect(engine.publicState.deadGroupStatus(for: .white) == .notSubmitted)
         #expect(engine.publicState.result == nil)
         #expect(transition.events == [.deadGroupsSubmitted(actor: .black, revision: 3)])
+        // 公共转换只暴露脱敏摘要；这个类型在结构上就不可能携带 GroupID。
+        #expect(transition.summary == .deadGroupsSubmitted(actor: .black))
         #expect(engine.authoritative.deadGroupProposals[.black]?.groups == [whiteGroup(reviewID)])
     }
 
-    @Test func resumeClearsHiddenProposalsWithoutRevealingThem() throws {
+    /// 只有一份提案时不得通过恢复对局把它悄悄丢弃，提案也不得因此被公开。
+    @Test func singleProposalCannotBeDiscardedThroughResume() throws {
         var engine = try reviewFixture()
         let reviewID = try enterReview(&engine)
         _ = try engine.apply(.submitDeadGroups(actor: .black, groups: [whiteGroup(reviewID)]))
+
+        expectAtomicRejection(&engine, .resume(actor: .white), .reviewNotDisputed)
+        expectAtomicRejection(&engine, .resume(actor: .black), .reviewNotDisputed)
+        #expect(engine.publicState.deadGroupStatus(for: .black) == .submitted)
+        #expect(engine.publicState.deadGroupStatus(for: .white) == .notSubmitted)
+        #expect(engine.authoritative.deadGroupProposals[.black]?.groups == [whiteGroup(reviewID)])
+    }
+
+    @Test func resumeRejectedBeforeAnyProposalAtomically() throws {
+        var engine = try reviewFixture()
+        try enterReview(&engine)
+        expectAtomicRejection(&engine, .resume(actor: .black), .reviewNotDisputed)
+        expectAtomicRejection(&engine, .resume(actor: .white), .reviewNotDisputed)
+    }
+
+    /// 双方一致后棋局已经结束，恢复对局属于错误阶段而不是未争议。
+    @Test func resumeRejectedAfterAgreementAtomically() throws {
+        var engine = try reviewFixture()
+        let reviewID = try enterReview(&engine)
+        _ = try engine.apply(.submitDeadGroups(actor: .black, groups: [whiteGroup(reviewID)]))
+        _ = try engine.apply(.submitDeadGroups(actor: .white, groups: [whiteGroup(reviewID)]))
+        #expect(engine.state.phase == .finished)
+        expectAtomicRejection(&engine, .resume(actor: .black), .wrongPhase)
+    }
+
+    @Test func resumeAfterDisagreementClearsProposalsFromPublicSurfaces() throws {
+        var engine = try reviewFixture()
+        let reviewID = try enterDisagreement(&engine)
+        #expect(engine.publicState.deadGroupStatus(for: .black) == .revealed([whiteGroup(reviewID)]))
+
         let transition = try engine.apply(.resume(actor: .white))
         #expect(engine.authoritative.deadGroupProposals.isEmpty)
         #expect(engine.publicState.deadGroupStatus(for: .black) == .notSubmitted)
-        #expect(transition.events == [.resumed(actor: .white, nextPlayer: .black, revision: 4)])
+        #expect(engine.publicState.deadGroupStatus(for: .white) == .notSubmitted)
+        #expect(transition.events == [.resumed(actor: .white, nextPlayer: .black, revision: 5)])
+        #expect(transition.summary == .resumed(actor: .white))
     }
 
     // MARK: - 一致、不一致与提交校验
@@ -224,7 +271,7 @@ struct ScoringReviewTests {
 
     @Test func staleReviewIDIsRejected() throws {
         var engine = try reviewFixture()
-        let firstReview = try enterReview(&engine)
+        let firstReview = try enterDisagreement(&engine)
         _ = try engine.apply(.resume(actor: .black))
         let secondReview = try enterReview(&engine)
         #expect(secondReview == ReviewID(value: 2))
@@ -321,7 +368,11 @@ struct ScoringReviewTests {
     func resumeIsFairForEveryPassOrderAndActor(firstPasser: Stone, resumeActor: Stone) throws {
         var engine = try reviewFixture(nextPlayer: firstPasser)
         let secondPasser = firstPasser.opponent
-        try enterReview(&engine)
+        let reviewID = try enterReview(&engine)
+        _ = try engine.apply(
+            .submitDeadGroups(actor: firstPasser, groups: [whiteGroup(reviewID)]))
+        _ = try engine.apply(.submitDeadGroups(actor: secondPasser, groups: []))
+        #expect(engine.state.phase == .scoringReview)
         let review = engine.state
 
         _ = try engine.apply(.resume(actor: resumeActor))

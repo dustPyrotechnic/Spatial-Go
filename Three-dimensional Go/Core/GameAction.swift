@@ -34,8 +34,10 @@ nonisolated enum GameAction: Hashable, Codable, Sendable {
 ///
 /// 展示层只消费这里的增量，不反写规则状态。
 nonisolated struct GameTransition: Hashable, Sendable {
-    /// 被接受的动作。
-    let action: GameAction
+    /// 被接受动作的脱敏摘要。
+    ///
+    /// 这里刻意不是 ``GameAction``：完整载荷（尤其是死棋提案集合）只写入私有权威日志。
+    let summary: PublicActionSummary
     /// 接受该动作后的状态修订号。
     let revision: UInt64
     /// 本次新增的棋子，停着一类动作为 `nil`。

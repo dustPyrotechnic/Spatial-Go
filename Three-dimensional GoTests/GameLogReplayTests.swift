@@ -155,6 +155,11 @@ struct GameLogReplayTests {
         var engine = RuleEngine(configuration: configuration)
         _ = try engine.apply(.pass(actor: .black))
         _ = try engine.apply(.pass(actor: .white))
+        let firstReview = try #require(engine.state.currentReviewID)
+        let disputed = GroupID(
+            reviewID: firstReview, color: .white, anchor: GridPosition(x: 2, y: 2, z: 0))
+        _ = try engine.apply(.submitDeadGroups(actor: .black, groups: [disputed]))
+        _ = try engine.apply(.submitDeadGroups(actor: .white, groups: []))
         _ = try engine.apply(.resume(actor: .white))
         _ = try engine.apply(.pass(actor: .black))
         _ = try engine.apply(.pass(actor: .white))

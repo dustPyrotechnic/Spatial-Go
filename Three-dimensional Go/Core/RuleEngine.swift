@@ -10,6 +10,8 @@ nonisolated enum RuleViolation: Error, Equatable, Sendable {
     case staleReviewID(ReviewID)
     /// 提案中的棋块标识与审核棋盘上的实际棋块不符。
     case invalidDeadGroup(GroupID)
+    /// 本轮审核尚未产生"双方都已提交且两份集合不同"的争议，因此不能恢复对局。
+    case reviewNotDisputed
 }
 
 /// `3d-go/1` 规则引擎。
@@ -150,7 +152,7 @@ nonisolated struct RuleEngine: Sendable {
 
         let revision = candidate.state.revision
         return GameTransition(
-            action: action,
+            summary: .placed(actor: actor, position: position),
             revision: revision,
             placedStone: PlacedStone(position: position, stone: actor),
             capturedPositions: capturedPositions,
@@ -219,7 +221,7 @@ nonisolated struct RuleEngine: Sendable {
             events.append(.enteredScoringReview(reviewID: reviewID, revision: revision))
         }
         return GameTransition(
-            action: action,
+            summary: .passed(actor: actor),
             revision: revision,
             placedStone: nil,
             capturedPositions: [],
@@ -247,7 +249,7 @@ nonisolated struct RuleEngine: Sendable {
             events.append(.finished(result: result, revision: revision))
         }
         return GameTransition(
-            action: action,
+            summary: .resigned(actor: actor),
             revision: revision,
             placedStone: nil,
             capturedPositions: [],
@@ -339,7 +341,7 @@ nonisolated struct RuleEngine: Sendable {
             events.append(.finished(result: result, revision: revision))
         }
         return GameTransition(
-            action: normalizedAction,
+            summary: .deadGroupsSubmitted(actor: actor),
             revision: revision,
             placedStone: nil,
             capturedPositions: [],
@@ -357,12 +359,14 @@ nonisolated struct RuleEngine: Sendable {
         action: GameAction
     ) throws -> GameTransition {
         guard candidate.state.phase == .scoringReview else { throw RuleViolation.wrongPhase }
+        // 设计 §3.4：只有双方都提交且两份集合不同，才允许任一方恢复对局。
+        guard candidate.reviewIsDisputed else { throw RuleViolation.reviewNotDisputed }
 
         try candidate.commitResume(action: action)
 
         let revision = candidate.state.revision
         return GameTransition(
-            action: action,
+            summary: .resumed(actor: actor),
             revision: revision,
             placedStone: nil,
             capturedPositions: [],

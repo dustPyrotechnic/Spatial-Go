@@ -125,7 +125,17 @@ nonisolated struct AuthoritativeGameState: Hashable, Sendable {
         deadGroupProposals[actor] = proposal
     }
 
-    /// 恢复对局：清零连续停着数并丢弃两份提案，从不公开它们。
+    /// 本轮审核是否已经产生"双方都已提交且两份集合不同"的争议。
+    ///
+    /// 依据设计 §3.4，这是唯一允许请求恢复对局的状态。
+    var reviewIsDisputed: Bool {
+        guard let black = deadGroupProposals[.black], let white = deadGroupProposals[.white] else {
+            return false
+        }
+        return black.groups != white.groups
+    }
+
+    /// 恢复对局：清零连续停着数并丢弃两份提案。
     mutating func commitResume(action: GameAction) throws {
         try state.commitResume(action: action)
         deadGroupProposals.removeAll()

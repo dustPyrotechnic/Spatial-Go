@@ -105,10 +105,14 @@ struct RenderMirrorTests {
         )
     }
 
-    @Test func passAndResumeProduceNoBoardDeltas() throws {
+    @Test func metadataOnlyActionsProduceNoBoardDeltas() throws {
         var engine = try reviewFixture()
         #expect(try engine.apply(.pass(actor: .black)).boardDeltas.isEmpty)
         #expect(try engine.apply(.pass(actor: .white)).boardDeltas.isEmpty)
+        let reviewID = try #require(engine.state.currentReviewID)
+        let dead = GroupID(reviewID: reviewID, color: .white, anchor: GridPosition(x: 2, y: 2, z: 0))
+        #expect(try engine.apply(.submitDeadGroups(actor: .black, groups: [dead])).boardDeltas.isEmpty)
+        #expect(try engine.apply(.submitDeadGroups(actor: .white, groups: [])).boardDeltas.isEmpty)
         #expect(try engine.apply(.resume(actor: .white)).boardDeltas.isEmpty)
     }
 
