@@ -6,8 +6,8 @@
 
 仓库目前仍是 SwiftUI 初始工程，尚未实现规则引擎或 AR 功能。产品设计和实施计划已经形成：
 
-- [设计说明](docs/plans/2026-09-03-立体围棋-design.md)
-- [实施计划](docs/plans/2026-09-03-立体围棋-implementation.md)
+- [设计说明](docs/plans/2026-09-03-spatial-go-design.md)
+- [实施计划](docs/plans/2026-09-03-spatial-go-implementation.md)
 
 不要把文档中的目标能力描述成现有实现。构建通过也不能证明水平面锚定、准星选点、真机性能或完整玩法已经完成。
 

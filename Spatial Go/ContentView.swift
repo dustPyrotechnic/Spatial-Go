@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  立体围棋
+//  Spatial Go
 //
 //  Created by 红尘一笑 on 2026/9/2.
 //

@@ -14,18 +14,18 @@ If the runner exposes the skill without a vendor namespace, `superpowers:executi
 
 ## Preconditions and execution rules
 
-- Read `docs/plans/2026-09-03-立体围棋-design.md` before changing rules, AR selection, rendering, or synchronization.
-- Preserve the existing untracked `立体围棋.xcodeproj/xcuserdata/` directory.
+- Read `docs/plans/2026-09-03-spatial-go-design.md` before changing rules, AR selection, rendering, or synchronization.
+- Preserve the existing untracked `Spatial Go.xcodeproj/xcuserdata/` directory.
 - Hard gate before Task 1: commit the design, README, AGENTS, and this plan together; require a clean status except explicitly preserved `xcuserdata`; and verify each document with `git show <DOC_COMMIT>:<path>`. Then create the implementation branch/worktree from a commit that contains that exact documentation commit. There is no current-worktree fallback for uncommitted governance documents.
 - Run logic tests after every core task. A simulator build does not prove AR placement, tracking, visual correctness, thermal behavior, or reticle usability.
 - Keep `Go3DCore` free of `SwiftUI`, `ARKit`, and `RealityKit` imports.
 - Use @test-driven-development for behavioral changes, @swiftui-specialist for SwiftUI code, @device-interaction when Xcode MCP is available for simulator/device interaction, and @verification-before-completion before every completion claim.
-- Before every task commit, stage only that task's explicit paths, run `git diff --check` and `git diff --cached --check`, and inspect `git status --short`; never stage or delete `立体围棋.xcodeproj/xcuserdata/`.
+- Before every task commit, stage only that task's explicit paths, run `git diff --check` and `git diff --cached --check`, and inspect `git status --short`; never stage or delete `Spatial Go.xcodeproj/xcuserdata/`.
 
 ## Target source layout
 
 ```text
-立体围棋/
+Spatial Go/
 ├── App/
 │   ├── AppModel.swift
 │   └── RootView.swift
@@ -75,8 +75,8 @@ If the runner exposes the skill without a vendor namespace, `superpowers:executi
 │   ├── Debug/RenderBenchmarkView.swift
 │   ├── Setup/GameSetupView.swift
 │   └── Tutorial/SurfaceToVolumeTutorial.swift
-└── 立体围棋App.swift
-立体围棋Tests/
+└── SpatialGoApp.swift
+Spatial GoTests/
 ├── BoardTests.swift
 ├── BoardGeometryTests.swift
 ├── BoardBenchmarkScenarioTests.swift
@@ -104,10 +104,10 @@ scripts/
 After Task 1 creates the test target, use this exact focused-test form for every RED/GREEN step, replacing only the final suite name listed in that task:
 
 ```bash
-xcodebuild -project "立体围棋.xcodeproj" \
-  -scheme "立体围棋" \
+xcodebuild -project "Spatial Go.xcodeproj" \
+  -scheme "Spatial Go" \
   -destination "platform=iOS Simulator,id=$SPATIAL_GO_SIMULATOR_UDID" \
-  -only-testing:"立体围棋Tests/BoardTests" \
+  -only-testing:"Spatial GoTests/BoardTests" \
   test
 ```
 
@@ -119,16 +119,16 @@ For every behavior task that starts by writing failing tests, immediately run it
 
 **Files:**
 
-- Create: `立体围棋/Core/GridPosition.swift`
-- Create: `立体围棋/Core/GameConfiguration.swift`
-- Create: `立体围棋/Core/Board.swift`
-- Create: `立体围棋Tests/BoardTests.swift`
-- Modify: `立体围棋.xcodeproj/project.pbxproj`
-- Create: `立体围棋.xcodeproj/xcshareddata/xcschemes/立体围棋.xcscheme`
+- Create: `Spatial Go/Core/GridPosition.swift`
+- Create: `Spatial Go/Core/GameConfiguration.swift`
+- Create: `Spatial Go/Core/Board.swift`
+- Create: `Spatial GoTests/BoardTests.swift`
+- Modify: `Spatial Go.xcodeproj/project.pbxproj`
+- Create: `Spatial Go.xcodeproj/xcshareddata/xcschemes/Spatial Go.xcscheme`
 
 **Steps:**
 
-1. In Xcode, add an iOS Unit Test target named `立体围棋Tests` using Swift Testing; do not hand-edit unrelated project settings. Share the `立体围棋` scheme, add the test target to its TestAction, and commit the shared scheme.
+1. In Xcode, add an iOS Unit Test target named `Spatial GoTests` using Swift Testing; do not hand-edit unrelated project settings. Share the `Spatial Go` scheme, add the test target to its TestAction, and commit the shared scheme.
 2. Write failing tests for dimension bounds, zero-based coordinate validation, linear index round trips, canonical z/y/x traversal, initial-stone validation, and the `1×1×1` boundary.
 3. Run the selected `BoardTests`; confirm failures are caused by missing types, not target configuration.
 4. Implement minimal value types. Use fixed-width/sendable/hashable values and an internal contiguous `[Stone?]` board representation.
@@ -155,10 +155,10 @@ enum Stone: UInt8, Codable, Sendable {
 
 **Files:**
 
-- Create: `立体围棋/Core/GameAction.swift`
-- Create: `立体围棋/Core/GameState.swift`
-- Create: `立体围棋/Core/RuleEngine.swift`
-- Create: `立体围棋Tests/RuleEngineTests.swift`
+- Create: `Spatial Go/Core/GameAction.swift`
+- Create: `Spatial Go/Core/GameState.swift`
+- Create: `Spatial Go/Core/RuleEngine.swift`
+- Create: `Spatial GoTests/RuleEngineTests.swift`
 
 **Steps:**
 
@@ -184,11 +184,11 @@ mutating func apply(_ action: GameAction) throws -> GameTransition
 
 **Files:**
 
-- Create: `立体围棋/Core/GameLog.swift`
-- Create: `立体围棋/Core/StateDigest.swift`
-- Create: `立体围棋Tests/StateDigestTests.swift`
-- Create: `立体围棋Tests/GameLogReplayTests.swift`
-- Modify: `立体围棋/Core/RuleEngine.swift`
+- Create: `Spatial Go/Core/GameLog.swift`
+- Create: `Spatial Go/Core/StateDigest.swift`
+- Create: `Spatial GoTests/StateDigestTests.swift`
+- Create: `Spatial GoTests/GameLogReplayTests.swift`
+- Modify: `Spatial Go/Core/RuleEngine.swift`
 
 **Steps:**
 
@@ -205,9 +205,9 @@ mutating func apply(_ action: GameAction) throws -> GameTransition
 
 **Files:**
 
-- Create: `立体围棋/Core/TerritoryScorer.swift`
-- Create: `立体围棋Tests/TerritoryScorerTests.swift`
-- Modify: `立体围棋/Core/GameState.swift`
+- Create: `Spatial Go/Core/TerritoryScorer.swift`
+- Create: `Spatial GoTests/TerritoryScorerTests.swift`
+- Modify: `Spatial Go/Core/GameState.swift`
 
 **Steps:**
 
@@ -223,15 +223,15 @@ mutating func apply(_ action: GameAction) throws -> GameTransition
 
 **Files:**
 
-- Modify: `立体围棋/Core/GameAction.swift`
-- Modify: `立体围棋/Core/GameState.swift`
-- Modify: `立体围棋/Core/RuleEngine.swift`
-- Modify: `立体围棋/Core/GameLog.swift`
-- Create: `立体围棋/Core/AuthoritativeGameState.swift`
-- Create: `立体围棋/Core/PublicGameState.swift`
-- Create: `立体围棋/Core/PublicGameEvent.swift`
-- Create: `立体围棋Tests/ScoringReviewTests.swift`
-- Modify: `立体围棋Tests/GameLogReplayTests.swift`
+- Modify: `Spatial Go/Core/GameAction.swift`
+- Modify: `Spatial Go/Core/GameState.swift`
+- Modify: `Spatial Go/Core/RuleEngine.swift`
+- Modify: `Spatial Go/Core/GameLog.swift`
+- Create: `Spatial Go/Core/AuthoritativeGameState.swift`
+- Create: `Spatial Go/Core/PublicGameState.swift`
+- Create: `Spatial Go/Core/PublicGameEvent.swift`
+- Create: `Spatial GoTests/ScoringReviewTests.swift`
+- Modify: `Spatial GoTests/GameLogReplayTests.swift`
 
 **Steps:**
 
@@ -248,12 +248,12 @@ mutating func apply(_ action: GameAction) throws -> GameTransition
 
 **Files:**
 
-- Create: `立体围棋/Core/GameSnapshot.swift`
-- Modify: `立体围棋/Core/AuthoritativeGameState.swift`
-- Modify: `立体围棋/Core/StateDigest.swift`
-- Create: `立体围棋/AR/RenderMirror.swift`
-- Create: `立体围棋Tests/RenderMirrorTests.swift`
-- Modify: `立体围棋/Core/RuleEngine.swift`
+- Create: `Spatial Go/Core/GameSnapshot.swift`
+- Modify: `Spatial Go/Core/AuthoritativeGameState.swift`
+- Modify: `Spatial Go/Core/StateDigest.swift`
+- Create: `Spatial Go/AR/RenderMirror.swift`
+- Create: `Spatial GoTests/RenderMirrorTests.swift`
+- Modify: `Spatial Go/Core/RuleEngine.swift`
 
 **Steps:**
 
@@ -279,14 +279,14 @@ enum ReconciliationDecision: Equatable {
 
 **Files:**
 
-- Create: `立体围棋/Players/GamePlayer.swift`
-- Create: `立体围棋/Players/GameSession.swift`
-- Create: `立体围棋/Players/HumanPlayer.swift`
-- Create: `立体围棋/Players/ManualOpponent.swift`
-- Create: `立体围棋/Players/ComputerPlayer.swift`
-- Create: `立体围棋/Players/PlayerController.swift`
-- Create: `立体围棋/App/AppModel.swift`
-- Create: `立体围棋Tests/PlayerRoutingTests.swift`
+- Create: `Spatial Go/Players/GamePlayer.swift`
+- Create: `Spatial Go/Players/GameSession.swift`
+- Create: `Spatial Go/Players/HumanPlayer.swift`
+- Create: `Spatial Go/Players/ManualOpponent.swift`
+- Create: `Spatial Go/Players/ComputerPlayer.swift`
+- Create: `Spatial Go/Players/PlayerController.swift`
+- Create: `Spatial Go/App/AppModel.swift`
+- Create: `Spatial GoTests/PlayerRoutingTests.swift`
 
 **Steps:**
 
@@ -313,12 +313,12 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Create: `立体围棋/App/RootView.swift`
-- Create: `立体围棋/Features/Setup/GameSetupView.swift`
-- Create: `立体围棋/Features/Tutorial/SurfaceToVolumeTutorial.swift`
-- Create: `立体围棋Tests/SetupFlowTests.swift`
-- Modify: `立体围棋/ContentView.swift`
-- Modify: `立体围棋/立体围棋App.swift`
+- Create: `Spatial Go/App/RootView.swift`
+- Create: `Spatial Go/Features/Setup/GameSetupView.swift`
+- Create: `Spatial Go/Features/Tutorial/SurfaceToVolumeTutorial.swift`
+- Create: `Spatial GoTests/SetupFlowTests.swift`
+- Modify: `Spatial Go/ContentView.swift`
+- Modify: `Spatial Go/SpatialGoApp.swift`
 
 **Steps:**
 
@@ -334,16 +334,16 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Create: `立体围棋/AR/ARBoardContainer.swift`
-- Create: `立体围棋/AR/ARBoardCoordinator.swift`
-- Create: `立体围棋/AR/TrackingState.swift`
-- Create: `立体围棋/AR/ARPlacementView.swift`
-- Create: `立体围棋/AR/CameraAuthorizationState.swift`
-- Create: `立体围棋/AR/CenterReticleView.swift`
-- Create: `立体围棋Tests/TrackingStateTests.swift`
-- Modify: `立体围棋/App/RootView.swift`
-- Modify: `立体围棋/App/AppModel.swift`
-- Modify: `立体围棋.xcodeproj/project.pbxproj`
+- Create: `Spatial Go/AR/ARBoardContainer.swift`
+- Create: `Spatial Go/AR/ARBoardCoordinator.swift`
+- Create: `Spatial Go/AR/TrackingState.swift`
+- Create: `Spatial Go/AR/ARPlacementView.swift`
+- Create: `Spatial Go/AR/CameraAuthorizationState.swift`
+- Create: `Spatial Go/AR/CenterReticleView.swift`
+- Create: `Spatial GoTests/TrackingStateTests.swift`
+- Modify: `Spatial Go/App/RootView.swift`
+- Modify: `Spatial Go/App/AppModel.swift`
+- Modify: `Spatial Go.xcodeproj/project.pbxproj`
 
 **Steps:**
 
@@ -361,25 +361,25 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Create: `立体围棋/AR/BoardGeometry.swift`
-- Create: `立体围棋/AR/BoardRenderer.swift`
-- Create: `立体围棋/AR/BoardBenchmarkScenario.swift`
-- Create: `立体围棋/AR/PerformanceSignposts.swift`
-- Create: `立体围棋/AR/PerformanceHarness.swift`
-- Create: `立体围棋/AR/PerformanceWorkloads.json`
-- Create: `立体围棋/AR/PerformanceReticleWorkloads.json`
-- Create: `立体围棋/AR/ReticleProjectionKernel.swift`
-- Create: `立体围棋/Features/Debug/RenderBenchmarkView.swift`
-- Create: `立体围棋Tests/BoardGeometryTests.swift`
-- Create: `立体围棋Tests/BoardBenchmarkScenarioTests.swift`
-- Create: `立体围棋Tests/PerformanceWorkloadTests.swift`
-- Create: `立体围棋Tests/PerformanceReticleWorkloadTests.swift`
-- Create: `立体围棋Tests/PerformanceExportTests.swift`
+- Create: `Spatial Go/AR/BoardGeometry.swift`
+- Create: `Spatial Go/AR/BoardRenderer.swift`
+- Create: `Spatial Go/AR/BoardBenchmarkScenario.swift`
+- Create: `Spatial Go/AR/PerformanceSignposts.swift`
+- Create: `Spatial Go/AR/PerformanceHarness.swift`
+- Create: `Spatial Go/AR/PerformanceWorkloads.json`
+- Create: `Spatial Go/AR/PerformanceReticleWorkloads.json`
+- Create: `Spatial Go/AR/ReticleProjectionKernel.swift`
+- Create: `Spatial Go/Features/Debug/RenderBenchmarkView.swift`
+- Create: `Spatial GoTests/BoardGeometryTests.swift`
+- Create: `Spatial GoTests/BoardBenchmarkScenarioTests.swift`
+- Create: `Spatial GoTests/PerformanceWorkloadTests.swift`
+- Create: `Spatial GoTests/PerformanceReticleWorkloadTests.swift`
+- Create: `Spatial GoTests/PerformanceExportTests.swift`
 - Create: `scripts/SpatialGo.tracetemplate`
 - Create: `scripts/export-performance-metrics.swift`
 - Create: `docs/verification/render-batching-baseline.md`
-- Modify: `立体围棋/AR/ARPlacementView.swift`
-- Modify: `立体围棋/App/RootView.swift`
+- Modify: `Spatial Go/AR/ARPlacementView.swift`
+- Modify: `Spatial Go/App/RootView.swift`
 
 **Steps:**
 
@@ -401,17 +401,17 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Create: `立体围棋/AR/CrosshairSelector.swift`
-- Create: `立体围棋Tests/CrosshairSelectorTests.swift`
-- Create: `立体围棋Tests/ARGameFlowTests.swift`
-- Create: `立体围棋/Features/Game/GameHUD.swift`
-- Create: `立体围棋/Features/Game/GameView.swift`
-- Modify: `立体围棋/App/RootView.swift`
-- Modify: `立体围棋/App/AppModel.swift`
-- Modify: `立体围棋/AR/ARPlacementView.swift`
-- Modify: `立体围棋/AR/ARBoardCoordinator.swift`
-- Modify: `立体围棋/AR/BoardRenderer.swift`
-- Modify: `立体围棋/AR/PerformanceSignposts.swift`
+- Create: `Spatial Go/AR/CrosshairSelector.swift`
+- Create: `Spatial GoTests/CrosshairSelectorTests.swift`
+- Create: `Spatial GoTests/ARGameFlowTests.swift`
+- Create: `Spatial Go/Features/Game/GameHUD.swift`
+- Create: `Spatial Go/Features/Game/GameView.swift`
+- Modify: `Spatial Go/App/RootView.swift`
+- Modify: `Spatial Go/App/AppModel.swift`
+- Modify: `Spatial Go/AR/ARPlacementView.swift`
+- Modify: `Spatial Go/AR/ARBoardCoordinator.swift`
+- Modify: `Spatial Go/AR/BoardRenderer.swift`
+- Modify: `Spatial Go/AR/PerformanceSignposts.swift`
 
 **Steps:**
 
@@ -430,13 +430,13 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Modify: `立体围棋/Features/Game/GameHUD.swift`
-- Modify: `立体围棋/Features/Game/GameView.swift`
-- Create: `立体围棋/Features/Game/DeadGroupReviewView.swift`
-- Create: `立体围棋Tests/DeadGroupSelectionTests.swift`
-- Modify: `立体围棋/AR/CrosshairSelector.swift`
-- Modify: `立体围棋Tests/CrosshairSelectorTests.swift`
-- Modify: `立体围棋/App/AppModel.swift`
+- Modify: `Spatial Go/Features/Game/GameHUD.swift`
+- Modify: `Spatial Go/Features/Game/GameView.swift`
+- Create: `Spatial Go/Features/Game/DeadGroupReviewView.swift`
+- Create: `Spatial GoTests/DeadGroupSelectionTests.swift`
+- Modify: `Spatial Go/AR/CrosshairSelector.swift`
+- Modify: `Spatial GoTests/CrosshairSelectorTests.swift`
+- Modify: `Spatial Go/App/AppModel.swift`
 
 **Steps:**
 
@@ -454,16 +454,16 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Modify: `立体围棋/AR/BoardRenderer.swift`
-- Modify: `立体围棋/AR/ARBoardCoordinator.swift`
-- Modify: `立体围棋/AR/RenderMirror.swift`
-- Create: `立体围棋/AR/EntityHealthLedger.swift`
-- Modify: `立体围棋Tests/RenderMirrorTests.swift`
-- Create: `立体围棋Tests/EntityHealthLedgerTests.swift`
-- Modify: `立体围棋/AR/PerformanceSignposts.swift`
-- Modify: `立体围棋/App/AppModel.swift`
-- Modify: `立体围棋/Features/Debug/RenderBenchmarkView.swift`
-- Create: `立体围棋/Features/Debug/ReconciliationFaultPanel.swift`
+- Modify: `Spatial Go/AR/BoardRenderer.swift`
+- Modify: `Spatial Go/AR/ARBoardCoordinator.swift`
+- Modify: `Spatial Go/AR/RenderMirror.swift`
+- Create: `Spatial Go/AR/EntityHealthLedger.swift`
+- Modify: `Spatial GoTests/RenderMirrorTests.swift`
+- Create: `Spatial GoTests/EntityHealthLedgerTests.swift`
+- Modify: `Spatial Go/AR/PerformanceSignposts.swift`
+- Modify: `Spatial Go/App/AppModel.swift`
+- Modify: `Spatial Go/Features/Debug/RenderBenchmarkView.swift`
+- Create: `Spatial Go/Features/Debug/ReconciliationFaultPanel.swift`
 
 **Steps:**
 
@@ -487,13 +487,13 @@ struct ComputerPlayer: GamePlayer {
 - Create: `docs/verification/ar-device-acceptance.md`
 - Create: `docs/verification/artifacts/acceptance-v1/metrics.csv`
 - Create: `docs/verification/artifacts/acceptance-v1/trace-manifest.txt`
-- Modify as required by failed accessibility acceptance: `立体围棋/Features/Setup/GameSetupView.swift`
-- Modify as required by failed accessibility acceptance: `立体围棋/Features/Tutorial/SurfaceToVolumeTutorial.swift`
-- Modify as required by failed accessibility acceptance: `立体围棋/AR/ARPlacementView.swift`
-- Modify as required by failed accessibility acceptance: `立体围棋/AR/CenterReticleView.swift`
-- Modify as required by failed accessibility acceptance: `立体围棋/Features/Game/GameHUD.swift`
-- Modify as required by failed accessibility acceptance: `立体围棋/Features/Game/GameView.swift`
-- Modify as required by failed accessibility acceptance: `立体围棋/Features/Game/DeadGroupReviewView.swift`
+- Modify as required by failed accessibility acceptance: `Spatial Go/Features/Setup/GameSetupView.swift`
+- Modify as required by failed accessibility acceptance: `Spatial Go/Features/Tutorial/SurfaceToVolumeTutorial.swift`
+- Modify as required by failed accessibility acceptance: `Spatial Go/AR/ARPlacementView.swift`
+- Modify as required by failed accessibility acceptance: `Spatial Go/AR/CenterReticleView.swift`
+- Modify as required by failed accessibility acceptance: `Spatial Go/Features/Game/GameHUD.swift`
+- Modify as required by failed accessibility acceptance: `Spatial Go/Features/Game/GameView.swift`
+- Modify as required by failed accessibility acceptance: `Spatial Go/Features/Game/DeadGroupReviewView.swift`
 - Modify as required by failed accessibility acceptance: the corresponding tests from Tasks 8, 9, 11, and 12
 - Modify: `README.md`
 
@@ -520,8 +520,8 @@ Discover an available simulator once and store its explicit UDID in a task-speci
 ```bash
 xcrun simctl list devices available
 export SPATIAL_GO_SIMULATOR_UDID="<SIMULATOR_UDID>"
-xcodebuild -project "立体围棋.xcodeproj" \
-  -scheme "立体围棋" \
+xcodebuild -project "Spatial Go.xcodeproj" \
+  -scheme "Spatial Go" \
   -destination "platform=iOS Simulator,id=$SPATIAL_GO_SIMULATOR_UDID" \
   test
 ```
@@ -529,18 +529,18 @@ xcodebuild -project "立体围棋.xcodeproj" \
 Focused-test example used during RED/GREEN cycles:
 
 ```bash
-xcodebuild -project "立体围棋.xcodeproj" \
-  -scheme "立体围棋" \
+xcodebuild -project "Spatial Go.xcodeproj" \
+  -scheme "Spatial Go" \
   -destination "platform=iOS Simulator,id=$SPATIAL_GO_SIMULATOR_UDID" \
-  -only-testing:"立体围棋Tests/BoardTests" \
+  -only-testing:"Spatial GoTests/BoardTests" \
   test
 ```
 
 Build for a connected device or generic device without claiming runtime validation:
 
 ```bash
-xcodebuild -project "立体围棋.xcodeproj" \
-  -scheme "立体围棋" \
+xcodebuild -project "Spatial Go.xcodeproj" \
+  -scheme "Spatial Go" \
   -configuration Release \
   -destination "generic/platform=iOS" \
   build

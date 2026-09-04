@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CAC0C87030480021007C3B7C"
-               BuildableName = "立体围棋.app"
-               BlueprintName = "立体围棋"
-               ReferencedContainer = "container:立体围棋.xcodeproj">
+               BuildableName = "Spatial Go.app"
+               BlueprintName = "Spatial Go"
+               ReferencedContainer = "container:Spatial Go.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -30,9 +30,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CAD0C88030480021007C3B7C"
-               BuildableName = "立体围棋Tests.xctest"
-               BlueprintName = "立体围棋Tests"
-               ReferencedContainer = "container:立体围棋.xcodeproj">
+               BuildableName = "Spatial GoTests.xctest"
+               BlueprintName = "Spatial GoTests"
+               ReferencedContainer = "container:Spatial Go.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -48,9 +48,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CAD0C88030480021007C3B7C"
-               BuildableName = "立体围棋Tests.xctest"
-               BlueprintName = "立体围棋Tests"
-               ReferencedContainer = "container:立体围棋.xcodeproj">
+               BuildableName = "Spatial GoTests.xctest"
+               BlueprintName = "Spatial GoTests"
+               ReferencedContainer = "container:Spatial Go.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -70,9 +70,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CAC0C87030480021007C3B7C"
-            BuildableName = "立体围棋.app"
-            BlueprintName = "立体围棋"
-            ReferencedContainer = "container:立体围棋.xcodeproj">
+            BuildableName = "Spatial Go.app"
+            BlueprintName = "Spatial Go"
+            ReferencedContainer = "container:Spatial Go.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -87,9 +87,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CAC0C87030480021007C3B7C"
-            BuildableName = "立体围棋.app"
-            BlueprintName = "立体围棋"
-            ReferencedContainer = "container:立体围棋.xcodeproj">
+            BuildableName = "Spatial Go.app"
+            BlueprintName = "Spatial Go"
+            ReferencedContainer = "container:Spatial Go.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
