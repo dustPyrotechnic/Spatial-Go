@@ -63,17 +63,17 @@ nonisolated struct AuthoritativeGameState: Hashable, Sendable {
         let publicState = publicState
         return GameSnapshot(
             board: state.board,
-            phase: state.phase,
-            nextPlayer: state.nextPlayer,
-            consecutivePasses: state.consecutivePasses,
-            reviewID: state.currentReviewID,
-            result: state.result,
+            metadata: SnapshotMetadata(
+                phase: state.phase,
+                nextPlayer: state.nextPlayer,
+                consecutivePasses: state.consecutivePasses,
+                reviewID: state.currentReviewID,
+                result: state.result,
+                blackSubmission: publicState.deadGroupStatus(for: .black),
+                whiteSubmission: publicState.deadGroupStatus(for: .white)
+            ),
             revision: state.revision,
-            boardDigest: digester.digest(state.board),
-            submissionStatus: [
-                .black: publicState.deadGroupStatus(for: .black),
-                .white: publicState.deadGroupStatus(for: .white),
-            ]
+            boardDigest: digester.digest(state.board)
         )
     }
 

@@ -85,7 +85,7 @@ struct RenderMirrorTests {
         mirror.rebuild(from: engine.snapshot)
         var counters = ReconciliationCounters()
         _ = mirror.reconcile(with: engine.snapshot, counters: &counters)
-        mirror.apply([BoardDelta(position: GridPosition(x: 2, y: 2, z: 0), stone: .white)])
+        mirror.apply([], from: engine.snapshot)
 
         #expect(engine.state.revision == revisionBefore)
         #expect(engine.snapshot.revision == revisionBefore)
@@ -116,6 +116,88 @@ struct RenderMirrorTests {
         #expect(try engine.apply(.resume(actor: .white)).boardDeltas.isEmpty)
     }
 
+    /// 没有棋盘增量的动作同样会改变公开元数据；镜像必须整体跟随快照，不能假同步。
+    @Test func metadataOnlyActionsKeepMirrorInExactSync() throws {
+        var engine = try reviewFixture()
+        var mirror = RenderMirror(snapshot: engine.snapshot)
+
+        func step(_ action: GameAction, sourceLocation: SourceLocation = #_sourceLocation) throws {
+            let transition = try engine.apply(action)
+            mirror.apply(transition.boardDeltas, from: engine.snapshot)
+            var counters = ReconciliationCounters()
+            #expect(mirror.metadata == engine.snapshot.metadata, sourceLocation: sourceLocation)
+            #expect(mirror.board == engine.snapshot.board, sourceLocation: sourceLocation)
+            #expect(mirror.revision == engine.snapshot.revision, sourceLocation: sourceLocation)
+            #expect(mirror.boardDigest == engine.snapshot.boardDigest, sourceLocation: sourceLocation)
+            #expect(
+                mirror.reconcile(with: engine.snapshot, counters: &counters) == .noChange,
+                sourceLocation: sourceLocation
+            )
+        }
+
+        try step(.pass(actor: .black))
+        #expect(mirror.metadata.consecutivePasses == 1)
+        #expect(mirror.metadata.phase == .playing)
+
+        try step(.pass(actor: .white))
+        #expect(mirror.metadata.phase == .scoringReview)
+        #expect(mirror.metadata.reviewID == ReviewID(value: 1))
+
+        let reviewID = try #require(engine.state.currentReviewID)
+        let dead = GroupID(reviewID: reviewID, color: .white, anchor: GridPosition(x: 2, y: 2, z: 0))
+        try step(.submitDeadGroups(actor: .black, groups: [dead]))
+        #expect(mirror.deadGroupStatus(for: .black) == .submitted)
+        #expect(mirror.deadGroupStatus(for: .white) == .notSubmitted)
+
+        try step(.submitDeadGroups(actor: .white, groups: []))
+        #expect(mirror.deadGroupStatus(for: .black) == .revealed([dead]))
+        #expect(mirror.deadGroupStatus(for: .white) == .revealed([]))
+
+        try step(.resume(actor: .black))
+        #expect(mirror.metadata.phase == .playing)
+        #expect(mirror.metadata.consecutivePasses == 0)
+        #expect(mirror.deadGroupStatus(for: .black) == .notSubmitted)
+        #expect(mirror.metadata.reviewID == nil)
+
+        try step(.resign(actor: .black))
+        #expect(mirror.metadata.phase == .finished)
+        #expect(mirror.metadata.result == .resignation(winner: .white, loser: .black))
+    }
+
+    /// 元数据漂移不得被宣称为一致，即使棋盘字节完全相同。
+    @Test func staleMetadataIsNeverReportedAsNoChange() throws {
+        var engine = try reviewFixture()
+        let mirror = RenderMirror(snapshot: engine.snapshot)
+        _ = try engine.apply(.pass(actor: .black))
+        #expect(mirror.board == engine.snapshot.board)
+        #expect(mirror.boardDigest == engine.snapshot.boardDigest)
+
+        var counters = ReconciliationCounters()
+        #expect(mirror.reconcile(with: engine.snapshot, counters: &counters) != .noChange)
+    }
+
+    @Test func rebuildRefreshesEveryPublicField() throws {
+        var engine = try reviewFixture()
+        var mirror = RenderMirror(snapshot: engine.snapshot)
+        _ = try engine.apply(.pass(actor: .black))
+        _ = try engine.apply(.pass(actor: .white))
+        let reviewID = try #require(engine.state.currentReviewID)
+        let dead = GroupID(reviewID: reviewID, color: .white, anchor: GridPosition(x: 2, y: 2, z: 0))
+        _ = try engine.apply(.submitDeadGroups(actor: .black, groups: [dead]))
+        _ = try engine.apply(.submitDeadGroups(actor: .white, groups: [dead]))
+
+        mirror.rebuild(from: engine.snapshot)
+        #expect(mirror.board == engine.snapshot.board)
+        #expect(mirror.revision == engine.snapshot.revision)
+        #expect(mirror.boardDigest == engine.snapshot.boardDigest)
+        #expect(mirror.metadata == engine.snapshot.metadata)
+        #expect(mirror.deadGroupStatus(for: .black) == .revealed([dead]))
+        #expect(mirror.metadata.phase == .finished)
+        var counters = ReconciliationCounters()
+        #expect(mirror.reconcile(with: engine.snapshot, counters: &counters) == .noChange)
+        #expect(counters.visitedCells == 0)
+    }
+
     @Test func agreedDeadStoneRemovalIsPublishedAsDeltas() throws {
         var engine = try reviewFixture()
         _ = try engine.apply(.pass(actor: .black))
@@ -136,9 +218,10 @@ struct RenderMirrorTests {
         var mirror = RenderMirror(snapshot: engine.snapshot)
         let transition = try engine.apply(
             .place(actor: .black, position: GridPosition(x: 0, y: 1, z: 0)))
-        mirror.apply(transition.boardDeltas, revision: transition.revision)
+        mirror.apply(transition.boardDeltas, from: engine.snapshot)
 
         #expect(mirror.board == engine.snapshot.board)
+        #expect(mirror.metadata == engine.snapshot.metadata)
         #expect(mirror.revision == engine.snapshot.revision)
         #expect(mirror.boardDigest == engine.snapshot.boardDigest)
 
@@ -187,9 +270,12 @@ struct RenderMirrorTests {
             Issue.record("expected a coordinate diff")
             return
         }
-        mirror.apply(deltas, revision: engine.snapshot.revision)
+        mirror.apply(deltas, from: engine.snapshot)
         #expect(mirror.board == engine.snapshot.board)
         #expect(mirror.boardDigest == engine.snapshot.boardDigest)
+        #expect(mirror.metadata == engine.snapshot.metadata)
+        var afterRepair = ReconciliationCounters()
+        #expect(mirror.reconcile(with: engine.snapshot, counters: &afterRepair) == .noChange)
     }
 
     // MARK: - 完整重建
@@ -207,6 +293,7 @@ struct RenderMirrorTests {
         #expect(mirror.board == large.snapshot.board)
         #expect(mirror.revision == large.snapshot.revision)
         #expect(mirror.boardDigest == large.snapshot.boardDigest)
+        #expect(mirror.metadata == large.snapshot.metadata)
     }
 
     @Test func damagedMirrorFallsBackToFullRebuild() throws {
