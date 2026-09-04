@@ -6,27 +6,6 @@ import Testing
 /// 以及每一个被拒绝动作的完整状态原子性。
 struct RuleEngineTests {
 
-    // MARK: - 原子性断言辅助
-
-    /// 断言动作被拒绝，且拒绝前后的完整规则状态逐字段相等。
-    ///
-    /// - Parameters:
-    ///   - engine: 待测规则引擎。
-    ///   - action: 预期被拒绝的动作。
-    ///   - violation: 预期的稳定错误值。
-    private func expectAtomicRejection(
-        _ engine: inout RuleEngine,
-        _ action: GameAction,
-        _ violation: RuleViolation,
-        sourceLocation: SourceLocation = #_sourceLocation
-    ) {
-        let before = engine.state
-        #expect(throws: violation, sourceLocation: sourceLocation) {
-            try engine.apply(action)
-        }
-        #expect(engine.state == before, sourceLocation: sourceLocation)
-    }
-
     private func engine(
         width: Int,
         height: Int,

@@ -10,19 +10,6 @@ struct StateDigestTests {
         func digest(_ key: StateKey) -> UInt64 { 0 }
     }
 
-    private func expectAtomicRejection(
-        _ engine: inout RuleEngine,
-        _ action: GameAction,
-        _ violation: RuleViolation,
-        sourceLocation: SourceLocation = #_sourceLocation
-    ) {
-        let before = engine.state
-        #expect(throws: violation, sourceLocation: sourceLocation) {
-            try engine.apply(action)
-        }
-        #expect(engine.state == before, sourceLocation: sourceLocation)
-    }
-
     // MARK: - 规范序列化
 
     @Test func stateKeyBoardBytesFollowCanonicalZThenYThenXOrder() throws {

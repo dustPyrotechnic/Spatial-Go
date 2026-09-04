@@ -120,7 +120,8 @@ nonisolated struct Board: Hashable, Sendable {
     /// 同色六向连通棋块及其气。
     ///
     /// - Parameter position: 棋块内任意一个已有棋子的坐标。
-    /// - Returns: 棋块全部坐标（升序索引）与不同气点集合；坐标为空点时返回 `nil`。
+    /// - Returns: 棋块全部坐标与不同气点集合；坐标为空点时返回 `nil`。
+    ///   `stones` 的顺序由遍历过程决定，未作规定，调用方不得依赖它。
     func groupAndLiberties(at position: GridPosition) -> (stones: [GridPosition], liberties: Set<GridPosition>)? {
         guard contains(position), let color = self[position] else { return nil }
         var visited: Set<GridPosition> = [position]

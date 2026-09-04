@@ -76,7 +76,7 @@ nonisolated struct RuleEngine: Sendable {
         let capturedPositions = RuleEngine.capturedPositions(
             on: &candidate,
             around: position,
-            capturing: actor.opponent
+            capturedColor: actor.opponent
         )
 
         guard let own = candidate.groupAndLiberties(at: position), !own.liberties.isEmpty else {
@@ -116,16 +116,16 @@ nonisolated struct RuleEngine: Sendable {
     /// - Parameters:
     ///   - board: 已经临时落子的候选棋盘，方法就地移除被提棋子。
     ///   - position: 本次落点。
-    ///   - color: 被提方颜色。
+    ///   - capturedColor: 被提方颜色。
     /// - Returns: 被提走的坐标，按棋盘规范 z/y/x 顺序排列。
     private static func capturedPositions(
         on board: inout Board,
         around position: GridPosition,
-        capturing color: Stone
+        capturedColor: Stone
     ) -> [GridPosition] {
         var anchors = Set<GridPosition>()
         var doomed = [GridPosition]()
-        for neighbor in board.neighbors(of: position) where board[neighbor] == color {
+        for neighbor in board.neighbors(of: position) where board[neighbor] == capturedColor {
             guard let group = board.groupAndLiberties(at: neighbor) else { continue }
             guard let anchor = group.stones.min(), anchors.insert(anchor).inserted else { continue }
             guard group.liberties.isEmpty else { continue }

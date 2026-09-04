@@ -15,7 +15,9 @@ nonisolated struct GridPosition: Hashable, Codable, Sendable {
     }
 }
 
-extension GridPosition: Comparable {
+/// `nonisolated` 是必需的：默认 actor 隔离为 MainActor 时，未标注的见证方法会被视为
+/// MainActor 隔离，纯 Core 的同步代码就无法调用它。
+nonisolated extension GridPosition: Comparable {
     /// 锚点顺序：先比较 x，再比较 y，最后比较 z。
     ///
     /// 这是棋块 `anchor` 使用的字典序，和棋盘序列化使用的 z/y/x 顺序是两套独立顺序。
@@ -26,6 +28,6 @@ extension GridPosition: Comparable {
     }
 }
 
-extension GridPosition: CustomStringConvertible {
+nonisolated extension GridPosition: CustomStringConvertible {
     var description: String { "(\(x), \(y), \(z))" }
 }
