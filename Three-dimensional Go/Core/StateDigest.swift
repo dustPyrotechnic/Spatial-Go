@@ -65,6 +65,40 @@ nonisolated struct StateKeyDigestV1: StateKeyDigesting {
     }
 }
 
+/// 棋盘内容摘要算法。
+///
+/// 渲染镜像不含下一行棋方，因此它不能复用 ``StateKeyDigesting``。
+nonisolated protocol BoardDigesting: Sendable {
+    /// 计算棋盘内容的 64 位摘要。
+    func digest(_ board: Board) -> UInt64
+}
+
+/// `3d-go/1` 的默认棋盘摘要：对域前缀 `3dgo-board-v1\0`、三个尺寸和规范 z/y/x
+/// 棋盘字节做 FNV-1a 64。
+nonisolated struct BoardDigestV1: BoardDigesting {
+    /// ASCII 域前缀，含结尾的 0 字节。
+    static let domainPrefix: [UInt8] = Array("3dgo-board-v1".utf8) + [0]
+
+    private static let offsetBasis: UInt64 = 0xcbf2_9ce4_8422_2325
+    private static let prime: UInt64 = 0x0000_0100_0000_01b3
+
+    init() {}
+
+    func digest(_ board: Board) -> UInt64 {
+        var hash = BoardDigestV1.offsetBasis
+        for byte in BoardDigestV1.domainPrefix {
+            hash = (hash ^ UInt64(byte)) &* BoardDigestV1.prime
+        }
+        for byte in [UInt8(board.width), UInt8(board.height), UInt8(board.depth)] {
+            hash = (hash ^ UInt64(byte)) &* BoardDigestV1.prime
+        }
+        for cell in board.cells {
+            hash = (hash ^ UInt64(cell?.rawValue ?? StateKey.emptyByte)) &* BoardDigestV1.prime
+        }
+        return hash
+    }
+}
+
 /// 情境超级劫历史。
 ///
 /// 按摘要分桶保存完整状态键；摘要相同只表示需要比较，从不单独构成拒绝理由。

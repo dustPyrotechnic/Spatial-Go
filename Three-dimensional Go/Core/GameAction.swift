@@ -46,4 +46,6 @@ nonisolated struct GameTransition: Hashable, Sendable {
     let nextPlayer: Stone
     /// 本次转换对外发布的公共事件，按发生顺序排列。
     let events: [PublicGameEvent]
+    /// 本次转换对渲染镜像的最小增量，按棋盘规范 z/y/x 顺序排列。
+    let boardDeltas: [BoardDelta]
 }

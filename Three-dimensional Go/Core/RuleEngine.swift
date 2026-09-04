@@ -21,32 +21,45 @@ nonisolated struct RuleEngine: Sendable {
     private(set) var authoritative: AuthoritativeGameState
     /// 计算超级劫摘要使用的实现。
     private let digester: any StateKeyDigesting
+    /// 计算棋盘摘要使用的实现。
+    private let boardDigester: any BoardDigesting
 
     /// 当前规则状态。
     var state: GameState { authoritative.state }
     /// 当前公共状态投影。
     var publicState: PublicGameState { authoritative.publicState }
+    /// 当前渲染层快照。
+    var snapshot: GameSnapshot { authoritative.makeSnapshot(digester: boardDigester) }
 
     init(
         configuration: GameConfiguration,
-        digester: any StateKeyDigesting = StateKeyDigestV1()
+        digester: any StateKeyDigesting = StateKeyDigestV1(),
+        boardDigester: any BoardDigesting = BoardDigestV1()
     ) {
         self.authoritative = AuthoritativeGameState(
             configuration: configuration, digester: digester)
         self.digester = digester
+        self.boardDigester = boardDigester
     }
 
-    init(state: GameState, digester: any StateKeyDigesting = StateKeyDigestV1()) {
+    init(
+        state: GameState,
+        digester: any StateKeyDigesting = StateKeyDigestV1(),
+        boardDigester: any BoardDigesting = BoardDigestV1()
+    ) {
         self.authoritative = AuthoritativeGameState(state: state)
         self.digester = digester
+        self.boardDigester = boardDigester
     }
 
     init(
         authoritative: AuthoritativeGameState,
-        digester: any StateKeyDigesting = StateKeyDigestV1()
+        digester: any StateKeyDigesting = StateKeyDigestV1(),
+        boardDigester: any BoardDigesting = BoardDigestV1()
     ) {
         self.authoritative = authoritative
         self.digester = digester
+        self.boardDigester = boardDigester
     }
 
     /// 由权威日志确定性重放一局棋。
@@ -146,7 +159,9 @@ nonisolated struct RuleEngine: Sendable {
                 .placed(
                     actor: actor, position: position, captured: capturedPositions,
                     revision: revision)
-            ]
+            ],
+            boardDeltas: capturedPositions.map { BoardDelta(position: $0, stone: nil) }
+                + [BoardDelta(position: position, stone: actor)]
         )
     }
 
@@ -209,7 +224,8 @@ nonisolated struct RuleEngine: Sendable {
             placedStone: nil,
             capturedPositions: [],
             nextPlayer: candidate.state.nextPlayer,
-            events: events
+            events: events,
+            boardDeltas: []
         )
     }
 
@@ -236,7 +252,8 @@ nonisolated struct RuleEngine: Sendable {
             placedStone: nil,
             capturedPositions: [],
             nextPlayer: candidate.state.nextPlayer,
-            events: events
+            events: events,
+            boardDeltas: []
         )
     }
 
@@ -274,6 +291,7 @@ nonisolated struct RuleEngine: Sendable {
         let opponentProposal = candidate.deadGroupProposals[actor.opponent]
         var finalBoard: Board?
         var result: GameResult?
+        var removedPositions = [GridPosition]()
         if let opponentProposal, opponentProposal.groups == normalized {
             var scored = board
             var deadPositions = Set<GridPosition>()
@@ -285,6 +303,9 @@ nonisolated struct RuleEngine: Sendable {
             }
             for position in deadPositions {
                 scored[position] = nil
+            }
+            removedPositions = deadPositions.sorted {
+                scored.linearIndex(of: $0) < scored.linearIndex(of: $1)
             }
             let breakdown = TerritoryScorer.score(
                 board: board,
@@ -323,7 +344,8 @@ nonisolated struct RuleEngine: Sendable {
             placedStone: nil,
             capturedPositions: [],
             nextPlayer: candidate.state.nextPlayer,
-            events: events
+            events: events,
+            boardDeltas: removedPositions.map { BoardDelta(position: $0, stone: nil) }
         )
     }
 
@@ -348,7 +370,8 @@ nonisolated struct RuleEngine: Sendable {
             events: [
                 .resumed(
                     actor: actor, nextPlayer: candidate.state.nextPlayer, revision: revision)
-            ]
+            ],
+            boardDeltas: []
         )
     }
 }

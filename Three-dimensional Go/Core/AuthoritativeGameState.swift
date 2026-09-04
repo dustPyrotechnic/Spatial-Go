@@ -56,6 +56,27 @@ nonisolated struct AuthoritativeGameState: Hashable, Sendable {
         )
     }
 
+    /// 渲染层快照。只包含棋盘、公共阶段与状态、修订号和棋盘摘要。
+    ///
+    /// - Parameter digester: 计算棋盘摘要使用的实现。
+    func makeSnapshot(digester: any BoardDigesting = BoardDigestV1()) -> GameSnapshot {
+        let publicState = publicState
+        return GameSnapshot(
+            board: state.board,
+            phase: state.phase,
+            nextPlayer: state.nextPlayer,
+            consecutivePasses: state.consecutivePasses,
+            reviewID: state.currentReviewID,
+            result: state.result,
+            revision: state.revision,
+            boardDigest: digester.digest(state.board),
+            submissionStatus: [
+                .black: publicState.deadGroupStatus(for: .black),
+                .white: publicState.deadGroupStatus(for: .white),
+            ]
+        )
+    }
+
     // MARK: - 原子提交
 
     mutating func commitPlacement(
