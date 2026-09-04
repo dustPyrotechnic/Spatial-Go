@@ -1,6 +1,6 @@
 import Testing
 
-@testable import 立体围棋
+@testable import SpatialGo
 
 /// Board 与对局配置的基础值类型测试，覆盖维度边界、零基坐标、线性索引往返、
 /// 规范 z/y/x 遍历顺序，以及 `3d-go/1` 的教学初始布子校验。

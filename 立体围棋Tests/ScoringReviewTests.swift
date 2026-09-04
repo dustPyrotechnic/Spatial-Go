@@ -1,6 +1,6 @@
 import Testing
 
-@testable import 立体围棋
+@testable import SpatialGo
 
 /// 停着、认输、死棋审核与恢复对局的状态机测试。
 ///

@@ -342,8 +342,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.LitiWeiqi";
-				PRODUCT_MODULE_NAME = "立体围棋";
+				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.SpatialGo";
+				PRODUCT_MODULE_NAME = "SpatialGo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -376,8 +376,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.LitiWeiqi";
-				PRODUCT_MODULE_NAME = "立体围棋";
+				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.SpatialGo";
+				PRODUCT_MODULE_NAME = "SpatialGo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -399,7 +399,7 @@
 				DEVELOPMENT_TEAM = LF6C69B29M;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.LitiWeiqiTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.SpatialGoTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -421,7 +421,7 @@
 				DEVELOPMENT_TEAM = LF6C69B29M;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.LitiWeiqiTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.SpatialGoTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;

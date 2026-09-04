@@ -1,6 +1,6 @@
 import Testing
 
-@testable import 立体围棋
+@testable import SpatialGo
 
 /// 三维面积计分测试：六向连通空区归属、外表面边界、死棋移除、贴目与半目总分。
 struct TerritoryScorerTests {

@@ -97,7 +97,7 @@ If the runner exposes the skill without a vendor namespace, `superpowers:executi
 ├── TrackingStateTests.swift
 └── TerritoryScorerTests.swift
 scripts/
-├── LitiWeiqi.tracetemplate
+├── SpatialGo.tracetemplate
 └── export-performance-metrics.swift
 ```
 
@@ -106,12 +106,12 @@ After Task 1 creates the test target, use this exact focused-test form for every
 ```bash
 xcodebuild -project "立体围棋.xcodeproj" \
   -scheme "立体围棋" \
-  -destination "platform=iOS Simulator,id=$LITI_WEIQI_SIMULATOR_UDID" \
+  -destination "platform=iOS Simulator,id=$SPATIAL_GO_SIMULATOR_UDID" \
   -only-testing:"立体围棋Tests/BoardTests" \
   test
 ```
 
-Before running it, set `LITI_WEIQI_SIMULATOR_UDID` to one explicit available simulator UDID. Do not select a destination by a potentially ambiguous device name.
+Before running it, set `SPATIAL_GO_SIMULATOR_UDID` to one explicit available simulator UDID. Do not select a destination by a potentially ambiguous device name.
 
 For every behavior task that starts by writing failing tests, immediately run its listed focused suite and record the expected RED caused by the missing behavior. Implement only after that RED, then run the same command and record GREEN. Compilation errors caused by a broken test target do not count as behavioral RED.
 
@@ -375,7 +375,7 @@ struct ComputerPlayer: GamePlayer {
 - Create: `立体围棋Tests/PerformanceWorkloadTests.swift`
 - Create: `立体围棋Tests/PerformanceReticleWorkloadTests.swift`
 - Create: `立体围棋Tests/PerformanceExportTests.swift`
-- Create: `scripts/LitiWeiqi.tracetemplate`
+- Create: `scripts/SpatialGo.tracetemplate`
 - Create: `scripts/export-performance-metrics.swift`
 - Create: `docs/verification/render-batching-baseline.md`
 - Modify: `立体围棋/AR/ARPlacementView.swift`
@@ -389,8 +389,8 @@ struct ComputerPlayer: GamePlayer {
 4. Generate 100 independent move samples per fixture in `PerformanceWorkloads.json`. For sample `i`, reset to the exact fixture with black as `nextPlayer`; start the legal-move scan at `(i × 67) mod 6859` in canonical z/y/x order, wrap once, and select the first Place accepted by `RuleEngine`. Store fixture ID, sample ID, actor, position, `BoardDigestV1` pre-digest, and `BoardDigestV1` post-digest. Tests regenerate all 300 entries, require every action accepted, compare every field, and lock the file SHA-256.
 5. Implement the pure SIMD-only `ReticleProjectionKernel`; Task 11's `CrosshairSelector` must delegate its ranking math to this kernel. Generate `reticle-v1` in `PerformanceReticleWorkloads.json` with 100 samples for each of `empty-v1`, `checker-half-v1`, and `split-dense-v1` (300 total). Every sample independently resets its named fixture and stores `fixtureID`, `sampleID`, that fixture's `BoardDigestV1` preDigest, board local transform identity, uniform scale `1.0`, spacing `0.02 m`, an exact column-major 4×4 camera transform, monotonically increasing input timestamp at 50 ms spacing within the fixture, and `expectedCandidate` or explicit `noCandidate` after occupied-point filtering. Tests decode every finite matrix, recompute the expected result through the kernel with the fixture's occupancy, verify counts/order/timing/digest, and lock the file SHA-256.
 6. Generate grid lines as one or a few meshes, not one entity per segment. Share stone mesh/material resources and start with a conservative documented batching threshold.
-7. Create `PerformanceSignposts` with subsystem `com.xiaochenstudio.LitiWeiqi.performance`, category `ARPipeline`, and one monotonic signpost clock. `frame.present` is a timestamp-only instant event carrying fixture/run labels and a monotonically increasing frame sequence; it never has begin/end. Duration intervals are `mesh.generate`, `chunk.rebuild`, `reticle.update`, `move.render`, `audit.array`, `audit.entity`, `repair.targeted`, and `scene.rebuild`; correlate their begin/end by sample ID and include fixture ID, run ID, sample ID, revision, `BoardDigestV1` preDigest, and `BoardDigestV1` postDigest where applicable. `PerformanceHarness` drives committed move/reticle samples and records `CADisplayLink` presentation timestamps as instant `frame.present` events; Task 10 instruments this event plus `mesh.generate` and `chunk.rebuild`.
-8. Commit a project-owned `LitiWeiqi.tracetemplate` containing Points of Interest plus process memory sampling. The canonical capture command is `xcrun xctrace record --template scripts/LitiWeiqi.tracetemplate --device "$LITI_WEIQI_DEVICE_UDID" --output "$LITI_WEIQI_TRACE_ROOT/<fixture>-<run>.trace" --launch -- "<built-app-path>" --benchmark <fixture> <run>`. The harness exits only after the fixed warm-up/workload duration and writes its run metadata.
+7. Create `PerformanceSignposts` with subsystem `com.xiaochenstudio.SpatialGo.performance`, category `ARPipeline`, and one monotonic signpost clock. `frame.present` is a timestamp-only instant event carrying fixture/run labels and a monotonically increasing frame sequence; it never has begin/end. Duration intervals are `mesh.generate`, `chunk.rebuild`, `reticle.update`, `move.render`, `audit.array`, `audit.entity`, `repair.targeted`, and `scene.rebuild`; correlate their begin/end by sample ID and include fixture ID, run ID, sample ID, revision, `BoardDigestV1` preDigest, and `BoardDigestV1` postDigest where applicable. `PerformanceHarness` drives committed move/reticle samples and records `CADisplayLink` presentation timestamps as instant `frame.present` events; Task 10 instruments this event plus `mesh.generate` and `chunk.rebuild`.
+8. Commit a project-owned `SpatialGo.tracetemplate` containing Points of Interest plus process memory sampling. The canonical capture command is `xcrun xctrace record --template scripts/SpatialGo.tracetemplate --device "$SPATIAL_GO_DEVICE_UDID" --output "$SPATIAL_GO_TRACE_ROOT/<fixture>-<run>.trace" --launch -- "<built-app-path>" --benchmark <fixture> <run>`. The harness exits only after the fixed warm-up/workload duration and writes its run metadata.
 9. Implement `export-performance-metrics.swift` to invoke/consume `xcrun xctrace export --input <trace> --xpath <versioned-export-xpath>`, derive FPS solely from adjacent valid instant `frame.present` timestamps, derive interval durations only from canonical begin/end pairs, and export the fixed Task 14 CSV schema. `PerformanceExportTests` separately test instant-event and interval validity. Lock the XPath/schema version in source.
 10. Add a reachable `RenderBenchmarkView` using stable fixtures/workloads and a per-stone/chunked toggle. Measure both paths in Release on the baseline device for 30 seconds after 10 seconds warm-up; record device/OS/build, p5 FPS, memory, mesh-build time, and the selected threshold in `render-batching-baseline.md`.
 11. Keep candidate, last move, and animated stones separate from batch meshes. Disable per-stone real-time shadows by default and avoid transparent bulk stones.
@@ -505,7 +505,7 @@ struct ComputerPlayer: GamePlayer {
 4. Each move sample starts by resetting outside the measured interval to the exact fixture/preDigest, then sends its committed workload Place through `RuleEngine`; only the accepted transition publication begins `move.render`, and renderer-delta commit ends it. Record postDigest and require the workload golden value. Reset/loading time is excluded. Never chain measured moves or inject renderer-only deltas.
 5. For each fixture/run, independently execute that fixture's 100 move samples and its 100 `reticle-v1` samples after resetting the fixture/board transform outside each measured interval; verify the fixture preDigest before every sample. Every run/fixture independently requires p5 FPS ≥30 from instant `frame.present` timestamps, reticle p95 <100 ms, and move-to-render p95 <16.7 ms; never pool samples. Also require no serious/critical thermal state during a separate 10-minute dense run.
 6. `metrics.csv` has fixed UTF-8 header: `fixture_id,run_id,metric,unit,valid_count,invalid_count,p50,p95,p5,threshold,passed,trace_sha256`. Durations export in milliseconds and FPS in frames/second. Sort valid samples ascending; nearest-rank percentile uses element `ceil(p*n)` with one-based indexing. A duration sample is valid only when one begin/end pair shares its canonical interval name, correlation ID, fixture/run/sample labels, and expected digests; missing, duplicate, overlapping, mismatched, or rejected-action pairs increment `invalid_count`. An FPS sample is instead one adjacent pair of monotonically increasing instant `frame.present` timestamps with matching fixture/run labels and consecutive frame sequence; missing, duplicate, non-monotonic, cross-run, or non-consecutive events increment `invalid_count`. Invalid samples never enter percentiles, and any invalid move or reticle sample blocks completion.
-7. Before profiling, set `LITI_WEIQI_TRACE_ROOT` to a durable, non-temporary artifact directory and `LITI_WEIQI_TRACE_ARCHIVE_URI` to an approved durable location accessible to reviewers. Capture every run with the Task 10 project-owned template and canonical `xcrun xctrace record` command, then run the committed exporter against each `.trace`; hand-edited CSV is invalid. Save raw `.trace` files under the root and upload/archive them without repository credentials. `trace-manifest.txt` records template SHA-256, exporter SHA-256, workload SHA-256 values, content-addressed URI, absolute local path, filename, fixture/run, timestamp, device/OS/build, byte size, and trace SHA-256. A second machine must download a trace by URI, verify its hash, rerun the exporter, and byte-compare `metrics.csv`; missing/inaccessible traces or mismatch blocks completion.
+7. Before profiling, set `SPATIAL_GO_TRACE_ROOT` to a durable, non-temporary artifact directory and `SPATIAL_GO_TRACE_ARCHIVE_URI` to an approved durable location accessible to reviewers. Capture every run with the Task 10 project-owned template and canonical `xcrun xctrace record` command, then run the committed exporter against each `.trace`; hand-edited CSV is invalid. Save raw `.trace` files under the root and upload/archive them without repository credentials. `trace-manifest.txt` records template SHA-256, exporter SHA-256, workload SHA-256 values, content-addressed URI, absolute local path, filename, fixture/run, timestamp, device/OS/build, byte size, and trace SHA-256. A second machine must download a trace by URI, verify its hash, rerun the exporter, and byte-compare `metrics.csv`; missing/inaccessible traces or mismatch blocks completion.
 8. Verify horizontal-plane placement, walk-around, pinch zoom, overlapping-point selection, tracking interruption, foreground recovery, Pass/review/Resume, and final scoring on device.
 9. Audit VoiceOver labels/values/focus/privacy, Dynamic Type through accessibility sizes, contrast/non-color cues, Reduce Motion, and camera-permission denial across the views named in this task.
 10. If an accessibility check fails, first record the failure, then add a focused regression to the corresponding Task 8/9/11/12 test file, confirm RED, make the smallest change to the explicitly listed UI file, rerun the focused test GREEN, and repeat the device inspection. This repair loop is part of Task 14 scope; unresolved failures block completion.
@@ -519,10 +519,10 @@ Discover an available simulator once and store its explicit UDID in a task-speci
 
 ```bash
 xcrun simctl list devices available
-export LITI_WEIQI_SIMULATOR_UDID="<SIMULATOR_UDID>"
+export SPATIAL_GO_SIMULATOR_UDID="<SIMULATOR_UDID>"
 xcodebuild -project "立体围棋.xcodeproj" \
   -scheme "立体围棋" \
-  -destination "platform=iOS Simulator,id=$LITI_WEIQI_SIMULATOR_UDID" \
+  -destination "platform=iOS Simulator,id=$SPATIAL_GO_SIMULATOR_UDID" \
   test
 ```
 
@@ -531,7 +531,7 @@ Focused-test example used during RED/GREEN cycles:
 ```bash
 xcodebuild -project "立体围棋.xcodeproj" \
   -scheme "立体围棋" \
-  -destination "platform=iOS Simulator,id=$LITI_WEIQI_SIMULATOR_UDID" \
+  -destination "platform=iOS Simulator,id=$SPATIAL_GO_SIMULATOR_UDID" \
   -only-testing:"立体围棋Tests/BoardTests" \
   test
 ```

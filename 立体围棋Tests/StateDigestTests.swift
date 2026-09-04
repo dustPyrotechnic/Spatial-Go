@@ -1,6 +1,6 @@
 import Testing
 
-@testable import 立体围棋
+@testable import SpatialGo
 
 /// `StateKey` 规范序列化、`StateKeyDigestV1` 金标向量，以及情境超级劫行为测试。
 struct StateDigestTests {
