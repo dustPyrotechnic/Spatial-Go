@@ -1,13 +1,13 @@
-# Three-dimensional Go
+# 立体围棋
 
-Three-dimensional Go 是一款使用 ARKit 与 RealityKit 构建的空间围棋项目。它不是把传统棋盘换成 3D 外观，而是把二维围棋的四方向连接推广到三维空间中的六方向连接，让玩家围住由离散空交叉点构成的“领体”。
+立体围棋是一款使用 ARKit 与 RealityKit 构建的空间围棋项目。它不是把传统棋盘换成 3D 外观，而是把二维围棋的四方向连接推广到三维空间中的六方向连接，让玩家围住由离散空交叉点构成的“领体”。
 
 ## 当前状态
 
 仓库目前仍是 SwiftUI 初始工程，尚未实现规则引擎或 AR 功能。产品设计和实施计划已经形成：
 
-- [设计说明](docs/plans/2026-09-03-three-dimensional-go-design.md)
-- [实施计划](docs/plans/2026-09-03-three-dimensional-go-implementation.md)
+- [设计说明](docs/plans/2026-09-03-立体围棋-design.md)
+- [实施计划](docs/plans/2026-09-03-立体围棋-implementation.md)
 
 不要把文档中的目标能力描述成现有实现。构建通过也不能证明水平面锚定、准星选点、真机性能或完整玩法已经完成。
 

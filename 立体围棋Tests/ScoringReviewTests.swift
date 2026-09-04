@@ -1,6 +1,6 @@
 import Testing
 
-@testable import Three_dimensional_Go
+@testable import 立体围棋
 
 /// 停着、认输、死棋审核与恢复对局的状态机测试。
 ///

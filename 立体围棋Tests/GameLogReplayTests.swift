@@ -1,6 +1,6 @@
 import Testing
 
-@testable import Three_dimensional_Go
+@testable import 立体围棋
 
 /// 权威日志的创建头、完整落子载荷记录、确定性重放，以及被拒绝落子对日志的零影响。
 struct GameLogReplayTests {

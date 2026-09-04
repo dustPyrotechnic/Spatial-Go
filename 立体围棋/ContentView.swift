@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  Three-dimensional Go
+//  立体围棋
 //
 //  Created by 红尘一笑 on 2026/9/2.
 //

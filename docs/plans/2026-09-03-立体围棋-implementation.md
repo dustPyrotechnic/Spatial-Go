@@ -1,10 +1,10 @@
-# Three-dimensional Go Implementation Plan
+# 立体围棋 Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 If the runner exposes the skill without a vendor namespace, `superpowers:executing-plans` means the available `executing-plans` skill.
 
-**Goal:** Build a testable three-dimensional Go rules engine and an ARKit/RealityKit iOS experience that anchors a configurable full-volume board, selects intersections with a center reticle, and lets one human play both colors while the computer-player seam remains empty.
+**Goal:** Build a testable 立体围棋 rules engine and an ARKit/RealityKit iOS experience that anchors a configurable full-volume board, selects intersections with a center reticle, and lets one human play both colors while the computer-player seam remains empty.
 
 **Architecture:** `Go3DCore` is a pure Swift source group and the only authority for game state, rules, scoring, logs, revisions, and digests. `GameSession` routes player actions into the core. ARKit/RealityKit project immutable snapshots into an anchored scene through a renderer mirror; event-driven deltas are primary and periodic revision/digest checks only reconcile drift.
 
@@ -14,18 +14,18 @@ If the runner exposes the skill without a vendor namespace, `superpowers:executi
 
 ## Preconditions and execution rules
 
-- Read `docs/plans/2026-09-03-three-dimensional-go-design.md` before changing rules, AR selection, rendering, or synchronization.
-- Preserve the existing untracked `Three-dimensional Go.xcodeproj/xcuserdata/` directory.
+- Read `docs/plans/2026-09-03-立体围棋-design.md` before changing rules, AR selection, rendering, or synchronization.
+- Preserve the existing untracked `立体围棋.xcodeproj/xcuserdata/` directory.
 - Hard gate before Task 1: commit the design, README, AGENTS, and this plan together; require a clean status except explicitly preserved `xcuserdata`; and verify each document with `git show <DOC_COMMIT>:<path>`. Then create the implementation branch/worktree from a commit that contains that exact documentation commit. There is no current-worktree fallback for uncommitted governance documents.
 - Run logic tests after every core task. A simulator build does not prove AR placement, tracking, visual correctness, thermal behavior, or reticle usability.
 - Keep `Go3DCore` free of `SwiftUI`, `ARKit`, and `RealityKit` imports.
 - Use @test-driven-development for behavioral changes, @swiftui-specialist for SwiftUI code, @device-interaction when Xcode MCP is available for simulator/device interaction, and @verification-before-completion before every completion claim.
-- Before every task commit, stage only that task's explicit paths, run `git diff --check` and `git diff --cached --check`, and inspect `git status --short`; never stage or delete `Three-dimensional Go.xcodeproj/xcuserdata/`.
+- Before every task commit, stage only that task's explicit paths, run `git diff --check` and `git diff --cached --check`, and inspect `git status --short`; never stage or delete `立体围棋.xcodeproj/xcuserdata/`.
 
 ## Target source layout
 
 ```text
-Three-dimensional Go/
+立体围棋/
 ├── App/
 │   ├── AppModel.swift
 │   └── RootView.swift
@@ -75,8 +75,8 @@ Three-dimensional Go/
 │   ├── Debug/RenderBenchmarkView.swift
 │   ├── Setup/GameSetupView.swift
 │   └── Tutorial/SurfaceToVolumeTutorial.swift
-└── Three_dimensional_GoApp.swift
-Three-dimensional GoTests/
+└── 立体围棋App.swift
+立体围棋Tests/
 ├── BoardTests.swift
 ├── BoardGeometryTests.swift
 ├── BoardBenchmarkScenarioTests.swift
@@ -97,21 +97,21 @@ Three-dimensional GoTests/
 ├── TrackingStateTests.swift
 └── TerritoryScorerTests.swift
 scripts/
-├── ThreeDimensionalGo.tracetemplate
+├── LitiWeiqi.tracetemplate
 └── export-performance-metrics.swift
 ```
 
 After Task 1 creates the test target, use this exact focused-test form for every RED/GREEN step, replacing only the final suite name listed in that task:
 
 ```bash
-xcodebuild -project "Three-dimensional Go.xcodeproj" \
-  -scheme "Three-dimensional Go" \
-  -destination "platform=iOS Simulator,id=$THREED_GO_SIMULATOR_UDID" \
-  -only-testing:"Three-dimensional GoTests/BoardTests" \
+xcodebuild -project "立体围棋.xcodeproj" \
+  -scheme "立体围棋" \
+  -destination "platform=iOS Simulator,id=$LITI_WEIQI_SIMULATOR_UDID" \
+  -only-testing:"立体围棋Tests/BoardTests" \
   test
 ```
 
-Before running it, set `THREED_GO_SIMULATOR_UDID` to one explicit available simulator UDID. Do not select a destination by a potentially ambiguous device name.
+Before running it, set `LITI_WEIQI_SIMULATOR_UDID` to one explicit available simulator UDID. Do not select a destination by a potentially ambiguous device name.
 
 For every behavior task that starts by writing failing tests, immediately run its listed focused suite and record the expected RED caused by the missing behavior. Implement only after that RED, then run the same command and record GREEN. Compilation errors caused by a broken test target do not count as behavioral RED.
 
@@ -119,16 +119,16 @@ For every behavior task that starts by writing failing tests, immediately run it
 
 **Files:**
 
-- Create: `Three-dimensional Go/Core/GridPosition.swift`
-- Create: `Three-dimensional Go/Core/GameConfiguration.swift`
-- Create: `Three-dimensional Go/Core/Board.swift`
-- Create: `Three-dimensional GoTests/BoardTests.swift`
-- Modify: `Three-dimensional Go.xcodeproj/project.pbxproj`
-- Create: `Three-dimensional Go.xcodeproj/xcshareddata/xcschemes/Three-dimensional Go.xcscheme`
+- Create: `立体围棋/Core/GridPosition.swift`
+- Create: `立体围棋/Core/GameConfiguration.swift`
+- Create: `立体围棋/Core/Board.swift`
+- Create: `立体围棋Tests/BoardTests.swift`
+- Modify: `立体围棋.xcodeproj/project.pbxproj`
+- Create: `立体围棋.xcodeproj/xcshareddata/xcschemes/立体围棋.xcscheme`
 
 **Steps:**
 
-1. In Xcode, add an iOS Unit Test target named `Three-dimensional GoTests` using Swift Testing; do not hand-edit unrelated project settings. Share the `Three-dimensional Go` scheme, add the test target to its TestAction, and commit the shared scheme.
+1. In Xcode, add an iOS Unit Test target named `立体围棋Tests` using Swift Testing; do not hand-edit unrelated project settings. Share the `立体围棋` scheme, add the test target to its TestAction, and commit the shared scheme.
 2. Write failing tests for dimension bounds, zero-based coordinate validation, linear index round trips, canonical z/y/x traversal, initial-stone validation, and the `1×1×1` boundary.
 3. Run the selected `BoardTests`; confirm failures are caused by missing types, not target configuration.
 4. Implement minimal value types. Use fixed-width/sendable/hashable values and an internal contiguous `[Stone?]` board representation.
@@ -155,10 +155,10 @@ enum Stone: UInt8, Codable, Sendable {
 
 **Files:**
 
-- Create: `Three-dimensional Go/Core/GameAction.swift`
-- Create: `Three-dimensional Go/Core/GameState.swift`
-- Create: `Three-dimensional Go/Core/RuleEngine.swift`
-- Create: `Three-dimensional GoTests/RuleEngineTests.swift`
+- Create: `立体围棋/Core/GameAction.swift`
+- Create: `立体围棋/Core/GameState.swift`
+- Create: `立体围棋/Core/RuleEngine.swift`
+- Create: `立体围棋Tests/RuleEngineTests.swift`
 
 **Steps:**
 
@@ -184,11 +184,11 @@ mutating func apply(_ action: GameAction) throws -> GameTransition
 
 **Files:**
 
-- Create: `Three-dimensional Go/Core/GameLog.swift`
-- Create: `Three-dimensional Go/Core/StateDigest.swift`
-- Create: `Three-dimensional GoTests/StateDigestTests.swift`
-- Create: `Three-dimensional GoTests/GameLogReplayTests.swift`
-- Modify: `Three-dimensional Go/Core/RuleEngine.swift`
+- Create: `立体围棋/Core/GameLog.swift`
+- Create: `立体围棋/Core/StateDigest.swift`
+- Create: `立体围棋Tests/StateDigestTests.swift`
+- Create: `立体围棋Tests/GameLogReplayTests.swift`
+- Modify: `立体围棋/Core/RuleEngine.swift`
 
 **Steps:**
 
@@ -205,9 +205,9 @@ mutating func apply(_ action: GameAction) throws -> GameTransition
 
 **Files:**
 
-- Create: `Three-dimensional Go/Core/TerritoryScorer.swift`
-- Create: `Three-dimensional GoTests/TerritoryScorerTests.swift`
-- Modify: `Three-dimensional Go/Core/GameState.swift`
+- Create: `立体围棋/Core/TerritoryScorer.swift`
+- Create: `立体围棋Tests/TerritoryScorerTests.swift`
+- Modify: `立体围棋/Core/GameState.swift`
 
 **Steps:**
 
@@ -223,15 +223,15 @@ mutating func apply(_ action: GameAction) throws -> GameTransition
 
 **Files:**
 
-- Modify: `Three-dimensional Go/Core/GameAction.swift`
-- Modify: `Three-dimensional Go/Core/GameState.swift`
-- Modify: `Three-dimensional Go/Core/RuleEngine.swift`
-- Modify: `Three-dimensional Go/Core/GameLog.swift`
-- Create: `Three-dimensional Go/Core/AuthoritativeGameState.swift`
-- Create: `Three-dimensional Go/Core/PublicGameState.swift`
-- Create: `Three-dimensional Go/Core/PublicGameEvent.swift`
-- Create: `Three-dimensional GoTests/ScoringReviewTests.swift`
-- Modify: `Three-dimensional GoTests/GameLogReplayTests.swift`
+- Modify: `立体围棋/Core/GameAction.swift`
+- Modify: `立体围棋/Core/GameState.swift`
+- Modify: `立体围棋/Core/RuleEngine.swift`
+- Modify: `立体围棋/Core/GameLog.swift`
+- Create: `立体围棋/Core/AuthoritativeGameState.swift`
+- Create: `立体围棋/Core/PublicGameState.swift`
+- Create: `立体围棋/Core/PublicGameEvent.swift`
+- Create: `立体围棋Tests/ScoringReviewTests.swift`
+- Modify: `立体围棋Tests/GameLogReplayTests.swift`
 
 **Steps:**
 
@@ -248,12 +248,12 @@ mutating func apply(_ action: GameAction) throws -> GameTransition
 
 **Files:**
 
-- Create: `Three-dimensional Go/Core/GameSnapshot.swift`
-- Modify: `Three-dimensional Go/Core/AuthoritativeGameState.swift`
-- Modify: `Three-dimensional Go/Core/StateDigest.swift`
-- Create: `Three-dimensional Go/AR/RenderMirror.swift`
-- Create: `Three-dimensional GoTests/RenderMirrorTests.swift`
-- Modify: `Three-dimensional Go/Core/RuleEngine.swift`
+- Create: `立体围棋/Core/GameSnapshot.swift`
+- Modify: `立体围棋/Core/AuthoritativeGameState.swift`
+- Modify: `立体围棋/Core/StateDigest.swift`
+- Create: `立体围棋/AR/RenderMirror.swift`
+- Create: `立体围棋Tests/RenderMirrorTests.swift`
+- Modify: `立体围棋/Core/RuleEngine.swift`
 
 **Steps:**
 
@@ -279,14 +279,14 @@ enum ReconciliationDecision: Equatable {
 
 **Files:**
 
-- Create: `Three-dimensional Go/Players/GamePlayer.swift`
-- Create: `Three-dimensional Go/Players/GameSession.swift`
-- Create: `Three-dimensional Go/Players/HumanPlayer.swift`
-- Create: `Three-dimensional Go/Players/ManualOpponent.swift`
-- Create: `Three-dimensional Go/Players/ComputerPlayer.swift`
-- Create: `Three-dimensional Go/Players/PlayerController.swift`
-- Create: `Three-dimensional Go/App/AppModel.swift`
-- Create: `Three-dimensional GoTests/PlayerRoutingTests.swift`
+- Create: `立体围棋/Players/GamePlayer.swift`
+- Create: `立体围棋/Players/GameSession.swift`
+- Create: `立体围棋/Players/HumanPlayer.swift`
+- Create: `立体围棋/Players/ManualOpponent.swift`
+- Create: `立体围棋/Players/ComputerPlayer.swift`
+- Create: `立体围棋/Players/PlayerController.swift`
+- Create: `立体围棋/App/AppModel.swift`
+- Create: `立体围棋Tests/PlayerRoutingTests.swift`
 
 **Steps:**
 
@@ -313,12 +313,12 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Create: `Three-dimensional Go/App/RootView.swift`
-- Create: `Three-dimensional Go/Features/Setup/GameSetupView.swift`
-- Create: `Three-dimensional Go/Features/Tutorial/SurfaceToVolumeTutorial.swift`
-- Create: `Three-dimensional GoTests/SetupFlowTests.swift`
-- Modify: `Three-dimensional Go/ContentView.swift`
-- Modify: `Three-dimensional Go/Three_dimensional_GoApp.swift`
+- Create: `立体围棋/App/RootView.swift`
+- Create: `立体围棋/Features/Setup/GameSetupView.swift`
+- Create: `立体围棋/Features/Tutorial/SurfaceToVolumeTutorial.swift`
+- Create: `立体围棋Tests/SetupFlowTests.swift`
+- Modify: `立体围棋/ContentView.swift`
+- Modify: `立体围棋/立体围棋App.swift`
 
 **Steps:**
 
@@ -334,16 +334,16 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Create: `Three-dimensional Go/AR/ARBoardContainer.swift`
-- Create: `Three-dimensional Go/AR/ARBoardCoordinator.swift`
-- Create: `Three-dimensional Go/AR/TrackingState.swift`
-- Create: `Three-dimensional Go/AR/ARPlacementView.swift`
-- Create: `Three-dimensional Go/AR/CameraAuthorizationState.swift`
-- Create: `Three-dimensional Go/AR/CenterReticleView.swift`
-- Create: `Three-dimensional GoTests/TrackingStateTests.swift`
-- Modify: `Three-dimensional Go/App/RootView.swift`
-- Modify: `Three-dimensional Go/App/AppModel.swift`
-- Modify: `Three-dimensional Go.xcodeproj/project.pbxproj`
+- Create: `立体围棋/AR/ARBoardContainer.swift`
+- Create: `立体围棋/AR/ARBoardCoordinator.swift`
+- Create: `立体围棋/AR/TrackingState.swift`
+- Create: `立体围棋/AR/ARPlacementView.swift`
+- Create: `立体围棋/AR/CameraAuthorizationState.swift`
+- Create: `立体围棋/AR/CenterReticleView.swift`
+- Create: `立体围棋Tests/TrackingStateTests.swift`
+- Modify: `立体围棋/App/RootView.swift`
+- Modify: `立体围棋/App/AppModel.swift`
+- Modify: `立体围棋.xcodeproj/project.pbxproj`
 
 **Steps:**
 
@@ -361,25 +361,25 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Create: `Three-dimensional Go/AR/BoardGeometry.swift`
-- Create: `Three-dimensional Go/AR/BoardRenderer.swift`
-- Create: `Three-dimensional Go/AR/BoardBenchmarkScenario.swift`
-- Create: `Three-dimensional Go/AR/PerformanceSignposts.swift`
-- Create: `Three-dimensional Go/AR/PerformanceHarness.swift`
-- Create: `Three-dimensional Go/AR/PerformanceWorkloads.json`
-- Create: `Three-dimensional Go/AR/PerformanceReticleWorkloads.json`
-- Create: `Three-dimensional Go/AR/ReticleProjectionKernel.swift`
-- Create: `Three-dimensional Go/Features/Debug/RenderBenchmarkView.swift`
-- Create: `Three-dimensional GoTests/BoardGeometryTests.swift`
-- Create: `Three-dimensional GoTests/BoardBenchmarkScenarioTests.swift`
-- Create: `Three-dimensional GoTests/PerformanceWorkloadTests.swift`
-- Create: `Three-dimensional GoTests/PerformanceReticleWorkloadTests.swift`
-- Create: `Three-dimensional GoTests/PerformanceExportTests.swift`
-- Create: `scripts/ThreeDimensionalGo.tracetemplate`
+- Create: `立体围棋/AR/BoardGeometry.swift`
+- Create: `立体围棋/AR/BoardRenderer.swift`
+- Create: `立体围棋/AR/BoardBenchmarkScenario.swift`
+- Create: `立体围棋/AR/PerformanceSignposts.swift`
+- Create: `立体围棋/AR/PerformanceHarness.swift`
+- Create: `立体围棋/AR/PerformanceWorkloads.json`
+- Create: `立体围棋/AR/PerformanceReticleWorkloads.json`
+- Create: `立体围棋/AR/ReticleProjectionKernel.swift`
+- Create: `立体围棋/Features/Debug/RenderBenchmarkView.swift`
+- Create: `立体围棋Tests/BoardGeometryTests.swift`
+- Create: `立体围棋Tests/BoardBenchmarkScenarioTests.swift`
+- Create: `立体围棋Tests/PerformanceWorkloadTests.swift`
+- Create: `立体围棋Tests/PerformanceReticleWorkloadTests.swift`
+- Create: `立体围棋Tests/PerformanceExportTests.swift`
+- Create: `scripts/LitiWeiqi.tracetemplate`
 - Create: `scripts/export-performance-metrics.swift`
 - Create: `docs/verification/render-batching-baseline.md`
-- Modify: `Three-dimensional Go/AR/ARPlacementView.swift`
-- Modify: `Three-dimensional Go/App/RootView.swift`
+- Modify: `立体围棋/AR/ARPlacementView.swift`
+- Modify: `立体围棋/App/RootView.swift`
 
 **Steps:**
 
@@ -389,8 +389,8 @@ struct ComputerPlayer: GamePlayer {
 4. Generate 100 independent move samples per fixture in `PerformanceWorkloads.json`. For sample `i`, reset to the exact fixture with black as `nextPlayer`; start the legal-move scan at `(i × 67) mod 6859` in canonical z/y/x order, wrap once, and select the first Place accepted by `RuleEngine`. Store fixture ID, sample ID, actor, position, `BoardDigestV1` pre-digest, and `BoardDigestV1` post-digest. Tests regenerate all 300 entries, require every action accepted, compare every field, and lock the file SHA-256.
 5. Implement the pure SIMD-only `ReticleProjectionKernel`; Task 11's `CrosshairSelector` must delegate its ranking math to this kernel. Generate `reticle-v1` in `PerformanceReticleWorkloads.json` with 100 samples for each of `empty-v1`, `checker-half-v1`, and `split-dense-v1` (300 total). Every sample independently resets its named fixture and stores `fixtureID`, `sampleID`, that fixture's `BoardDigestV1` preDigest, board local transform identity, uniform scale `1.0`, spacing `0.02 m`, an exact column-major 4×4 camera transform, monotonically increasing input timestamp at 50 ms spacing within the fixture, and `expectedCandidate` or explicit `noCandidate` after occupied-point filtering. Tests decode every finite matrix, recompute the expected result through the kernel with the fixture's occupancy, verify counts/order/timing/digest, and lock the file SHA-256.
 6. Generate grid lines as one or a few meshes, not one entity per segment. Share stone mesh/material resources and start with a conservative documented batching threshold.
-7. Create `PerformanceSignposts` with subsystem `com.xiaochenstudio.Three-dimensional-Go.performance`, category `ARPipeline`, and one monotonic signpost clock. `frame.present` is a timestamp-only instant event carrying fixture/run labels and a monotonically increasing frame sequence; it never has begin/end. Duration intervals are `mesh.generate`, `chunk.rebuild`, `reticle.update`, `move.render`, `audit.array`, `audit.entity`, `repair.targeted`, and `scene.rebuild`; correlate their begin/end by sample ID and include fixture ID, run ID, sample ID, revision, `BoardDigestV1` preDigest, and `BoardDigestV1` postDigest where applicable. `PerformanceHarness` drives committed move/reticle samples and records `CADisplayLink` presentation timestamps as instant `frame.present` events; Task 10 instruments this event plus `mesh.generate` and `chunk.rebuild`.
-8. Commit a project-owned `ThreeDimensionalGo.tracetemplate` containing Points of Interest plus process memory sampling. The canonical capture command is `xcrun xctrace record --template scripts/ThreeDimensionalGo.tracetemplate --device "$THREED_GO_DEVICE_UDID" --output "$THREED_GO_TRACE_ROOT/<fixture>-<run>.trace" --launch -- "<built-app-path>" --benchmark <fixture> <run>`. The harness exits only after the fixed warm-up/workload duration and writes its run metadata.
+7. Create `PerformanceSignposts` with subsystem `com.xiaochenstudio.LitiWeiqi.performance`, category `ARPipeline`, and one monotonic signpost clock. `frame.present` is a timestamp-only instant event carrying fixture/run labels and a monotonically increasing frame sequence; it never has begin/end. Duration intervals are `mesh.generate`, `chunk.rebuild`, `reticle.update`, `move.render`, `audit.array`, `audit.entity`, `repair.targeted`, and `scene.rebuild`; correlate their begin/end by sample ID and include fixture ID, run ID, sample ID, revision, `BoardDigestV1` preDigest, and `BoardDigestV1` postDigest where applicable. `PerformanceHarness` drives committed move/reticle samples and records `CADisplayLink` presentation timestamps as instant `frame.present` events; Task 10 instruments this event plus `mesh.generate` and `chunk.rebuild`.
+8. Commit a project-owned `LitiWeiqi.tracetemplate` containing Points of Interest plus process memory sampling. The canonical capture command is `xcrun xctrace record --template scripts/LitiWeiqi.tracetemplate --device "$LITI_WEIQI_DEVICE_UDID" --output "$LITI_WEIQI_TRACE_ROOT/<fixture>-<run>.trace" --launch -- "<built-app-path>" --benchmark <fixture> <run>`. The harness exits only after the fixed warm-up/workload duration and writes its run metadata.
 9. Implement `export-performance-metrics.swift` to invoke/consume `xcrun xctrace export --input <trace> --xpath <versioned-export-xpath>`, derive FPS solely from adjacent valid instant `frame.present` timestamps, derive interval durations only from canonical begin/end pairs, and export the fixed Task 14 CSV schema. `PerformanceExportTests` separately test instant-event and interval validity. Lock the XPath/schema version in source.
 10. Add a reachable `RenderBenchmarkView` using stable fixtures/workloads and a per-stone/chunked toggle. Measure both paths in Release on the baseline device for 30 seconds after 10 seconds warm-up; record device/OS/build, p5 FPS, memory, mesh-build time, and the selected threshold in `render-batching-baseline.md`.
 11. Keep candidate, last move, and animated stones separate from batch meshes. Disable per-stone real-time shadows by default and avoid transparent bulk stones.
@@ -401,17 +401,17 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Create: `Three-dimensional Go/AR/CrosshairSelector.swift`
-- Create: `Three-dimensional GoTests/CrosshairSelectorTests.swift`
-- Create: `Three-dimensional GoTests/ARGameFlowTests.swift`
-- Create: `Three-dimensional Go/Features/Game/GameHUD.swift`
-- Create: `Three-dimensional Go/Features/Game/GameView.swift`
-- Modify: `Three-dimensional Go/App/RootView.swift`
-- Modify: `Three-dimensional Go/App/AppModel.swift`
-- Modify: `Three-dimensional Go/AR/ARPlacementView.swift`
-- Modify: `Three-dimensional Go/AR/ARBoardCoordinator.swift`
-- Modify: `Three-dimensional Go/AR/BoardRenderer.swift`
-- Modify: `Three-dimensional Go/AR/PerformanceSignposts.swift`
+- Create: `立体围棋/AR/CrosshairSelector.swift`
+- Create: `立体围棋Tests/CrosshairSelectorTests.swift`
+- Create: `立体围棋Tests/ARGameFlowTests.swift`
+- Create: `立体围棋/Features/Game/GameHUD.swift`
+- Create: `立体围棋/Features/Game/GameView.swift`
+- Modify: `立体围棋/App/RootView.swift`
+- Modify: `立体围棋/App/AppModel.swift`
+- Modify: `立体围棋/AR/ARPlacementView.swift`
+- Modify: `立体围棋/AR/ARBoardCoordinator.swift`
+- Modify: `立体围棋/AR/BoardRenderer.swift`
+- Modify: `立体围棋/AR/PerformanceSignposts.swift`
 
 **Steps:**
 
@@ -430,13 +430,13 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Modify: `Three-dimensional Go/Features/Game/GameHUD.swift`
-- Modify: `Three-dimensional Go/Features/Game/GameView.swift`
-- Create: `Three-dimensional Go/Features/Game/DeadGroupReviewView.swift`
-- Create: `Three-dimensional GoTests/DeadGroupSelectionTests.swift`
-- Modify: `Three-dimensional Go/AR/CrosshairSelector.swift`
-- Modify: `Three-dimensional GoTests/CrosshairSelectorTests.swift`
-- Modify: `Three-dimensional Go/App/AppModel.swift`
+- Modify: `立体围棋/Features/Game/GameHUD.swift`
+- Modify: `立体围棋/Features/Game/GameView.swift`
+- Create: `立体围棋/Features/Game/DeadGroupReviewView.swift`
+- Create: `立体围棋Tests/DeadGroupSelectionTests.swift`
+- Modify: `立体围棋/AR/CrosshairSelector.swift`
+- Modify: `立体围棋Tests/CrosshairSelectorTests.swift`
+- Modify: `立体围棋/App/AppModel.swift`
 
 **Steps:**
 
@@ -454,16 +454,16 @@ struct ComputerPlayer: GamePlayer {
 
 **Files:**
 
-- Modify: `Three-dimensional Go/AR/BoardRenderer.swift`
-- Modify: `Three-dimensional Go/AR/ARBoardCoordinator.swift`
-- Modify: `Three-dimensional Go/AR/RenderMirror.swift`
-- Create: `Three-dimensional Go/AR/EntityHealthLedger.swift`
-- Modify: `Three-dimensional GoTests/RenderMirrorTests.swift`
-- Create: `Three-dimensional GoTests/EntityHealthLedgerTests.swift`
-- Modify: `Three-dimensional Go/AR/PerformanceSignposts.swift`
-- Modify: `Three-dimensional Go/App/AppModel.swift`
-- Modify: `Three-dimensional Go/Features/Debug/RenderBenchmarkView.swift`
-- Create: `Three-dimensional Go/Features/Debug/ReconciliationFaultPanel.swift`
+- Modify: `立体围棋/AR/BoardRenderer.swift`
+- Modify: `立体围棋/AR/ARBoardCoordinator.swift`
+- Modify: `立体围棋/AR/RenderMirror.swift`
+- Create: `立体围棋/AR/EntityHealthLedger.swift`
+- Modify: `立体围棋Tests/RenderMirrorTests.swift`
+- Create: `立体围棋Tests/EntityHealthLedgerTests.swift`
+- Modify: `立体围棋/AR/PerformanceSignposts.swift`
+- Modify: `立体围棋/App/AppModel.swift`
+- Modify: `立体围棋/Features/Debug/RenderBenchmarkView.swift`
+- Create: `立体围棋/Features/Debug/ReconciliationFaultPanel.swift`
 
 **Steps:**
 
@@ -487,13 +487,13 @@ struct ComputerPlayer: GamePlayer {
 - Create: `docs/verification/ar-device-acceptance.md`
 - Create: `docs/verification/artifacts/acceptance-v1/metrics.csv`
 - Create: `docs/verification/artifacts/acceptance-v1/trace-manifest.txt`
-- Modify as required by failed accessibility acceptance: `Three-dimensional Go/Features/Setup/GameSetupView.swift`
-- Modify as required by failed accessibility acceptance: `Three-dimensional Go/Features/Tutorial/SurfaceToVolumeTutorial.swift`
-- Modify as required by failed accessibility acceptance: `Three-dimensional Go/AR/ARPlacementView.swift`
-- Modify as required by failed accessibility acceptance: `Three-dimensional Go/AR/CenterReticleView.swift`
-- Modify as required by failed accessibility acceptance: `Three-dimensional Go/Features/Game/GameHUD.swift`
-- Modify as required by failed accessibility acceptance: `Three-dimensional Go/Features/Game/GameView.swift`
-- Modify as required by failed accessibility acceptance: `Three-dimensional Go/Features/Game/DeadGroupReviewView.swift`
+- Modify as required by failed accessibility acceptance: `立体围棋/Features/Setup/GameSetupView.swift`
+- Modify as required by failed accessibility acceptance: `立体围棋/Features/Tutorial/SurfaceToVolumeTutorial.swift`
+- Modify as required by failed accessibility acceptance: `立体围棋/AR/ARPlacementView.swift`
+- Modify as required by failed accessibility acceptance: `立体围棋/AR/CenterReticleView.swift`
+- Modify as required by failed accessibility acceptance: `立体围棋/Features/Game/GameHUD.swift`
+- Modify as required by failed accessibility acceptance: `立体围棋/Features/Game/GameView.swift`
+- Modify as required by failed accessibility acceptance: `立体围棋/Features/Game/DeadGroupReviewView.swift`
 - Modify as required by failed accessibility acceptance: the corresponding tests from Tasks 8, 9, 11, and 12
 - Modify: `README.md`
 
@@ -505,7 +505,7 @@ struct ComputerPlayer: GamePlayer {
 4. Each move sample starts by resetting outside the measured interval to the exact fixture/preDigest, then sends its committed workload Place through `RuleEngine`; only the accepted transition publication begins `move.render`, and renderer-delta commit ends it. Record postDigest and require the workload golden value. Reset/loading time is excluded. Never chain measured moves or inject renderer-only deltas.
 5. For each fixture/run, independently execute that fixture's 100 move samples and its 100 `reticle-v1` samples after resetting the fixture/board transform outside each measured interval; verify the fixture preDigest before every sample. Every run/fixture independently requires p5 FPS ≥30 from instant `frame.present` timestamps, reticle p95 <100 ms, and move-to-render p95 <16.7 ms; never pool samples. Also require no serious/critical thermal state during a separate 10-minute dense run.
 6. `metrics.csv` has fixed UTF-8 header: `fixture_id,run_id,metric,unit,valid_count,invalid_count,p50,p95,p5,threshold,passed,trace_sha256`. Durations export in milliseconds and FPS in frames/second. Sort valid samples ascending; nearest-rank percentile uses element `ceil(p*n)` with one-based indexing. A duration sample is valid only when one begin/end pair shares its canonical interval name, correlation ID, fixture/run/sample labels, and expected digests; missing, duplicate, overlapping, mismatched, or rejected-action pairs increment `invalid_count`. An FPS sample is instead one adjacent pair of monotonically increasing instant `frame.present` timestamps with matching fixture/run labels and consecutive frame sequence; missing, duplicate, non-monotonic, cross-run, or non-consecutive events increment `invalid_count`. Invalid samples never enter percentiles, and any invalid move or reticle sample blocks completion.
-7. Before profiling, set `THREED_GO_TRACE_ROOT` to a durable, non-temporary artifact directory and `THREED_GO_TRACE_ARCHIVE_URI` to an approved durable location accessible to reviewers. Capture every run with the Task 10 project-owned template and canonical `xcrun xctrace record` command, then run the committed exporter against each `.trace`; hand-edited CSV is invalid. Save raw `.trace` files under the root and upload/archive them without repository credentials. `trace-manifest.txt` records template SHA-256, exporter SHA-256, workload SHA-256 values, content-addressed URI, absolute local path, filename, fixture/run, timestamp, device/OS/build, byte size, and trace SHA-256. A second machine must download a trace by URI, verify its hash, rerun the exporter, and byte-compare `metrics.csv`; missing/inaccessible traces or mismatch blocks completion.
+7. Before profiling, set `LITI_WEIQI_TRACE_ROOT` to a durable, non-temporary artifact directory and `LITI_WEIQI_TRACE_ARCHIVE_URI` to an approved durable location accessible to reviewers. Capture every run with the Task 10 project-owned template and canonical `xcrun xctrace record` command, then run the committed exporter against each `.trace`; hand-edited CSV is invalid. Save raw `.trace` files under the root and upload/archive them without repository credentials. `trace-manifest.txt` records template SHA-256, exporter SHA-256, workload SHA-256 values, content-addressed URI, absolute local path, filename, fixture/run, timestamp, device/OS/build, byte size, and trace SHA-256. A second machine must download a trace by URI, verify its hash, rerun the exporter, and byte-compare `metrics.csv`; missing/inaccessible traces or mismatch blocks completion.
 8. Verify horizontal-plane placement, walk-around, pinch zoom, overlapping-point selection, tracking interruption, foreground recovery, Pass/review/Resume, and final scoring on device.
 9. Audit VoiceOver labels/values/focus/privacy, Dynamic Type through accessibility sizes, contrast/non-color cues, Reduce Motion, and camera-permission denial across the views named in this task.
 10. If an accessibility check fails, first record the failure, then add a focused regression to the corresponding Task 8/9/11/12 test file, confirm RED, make the smallest change to the explicitly listed UI file, rerun the focused test GREEN, and repeat the device inspection. This repair loop is part of Task 14 scope; unresolved failures block completion.
@@ -519,28 +519,28 @@ Discover an available simulator once and store its explicit UDID in a task-speci
 
 ```bash
 xcrun simctl list devices available
-export THREED_GO_SIMULATOR_UDID="<SIMULATOR_UDID>"
-xcodebuild -project "Three-dimensional Go.xcodeproj" \
-  -scheme "Three-dimensional Go" \
-  -destination "platform=iOS Simulator,id=$THREED_GO_SIMULATOR_UDID" \
+export LITI_WEIQI_SIMULATOR_UDID="<SIMULATOR_UDID>"
+xcodebuild -project "立体围棋.xcodeproj" \
+  -scheme "立体围棋" \
+  -destination "platform=iOS Simulator,id=$LITI_WEIQI_SIMULATOR_UDID" \
   test
 ```
 
 Focused-test example used during RED/GREEN cycles:
 
 ```bash
-xcodebuild -project "Three-dimensional Go.xcodeproj" \
-  -scheme "Three-dimensional Go" \
-  -destination "platform=iOS Simulator,id=$THREED_GO_SIMULATOR_UDID" \
-  -only-testing:"Three-dimensional GoTests/BoardTests" \
+xcodebuild -project "立体围棋.xcodeproj" \
+  -scheme "立体围棋" \
+  -destination "platform=iOS Simulator,id=$LITI_WEIQI_SIMULATOR_UDID" \
+  -only-testing:"立体围棋Tests/BoardTests" \
   test
 ```
 
 Build for a connected device or generic device without claiming runtime validation:
 
 ```bash
-xcodebuild -project "Three-dimensional Go.xcodeproj" \
-  -scheme "Three-dimensional Go" \
+xcodebuild -project "立体围棋.xcodeproj" \
+  -scheme "立体围棋" \
   -configuration Release \
   -destination "generic/platform=iOS" \
   build

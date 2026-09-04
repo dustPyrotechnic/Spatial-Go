@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		CAC0C87130480021007C3B7C /* Three-dimensional Go.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Three-dimensional Go.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		CAD0C88130480021007C3B7C /* Three-dimensional GoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Three-dimensional GoTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CAC0C87130480021007C3B7C /* 立体围棋.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "立体围棋.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CAD0C88130480021007C3B7C /* 立体围棋Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "立体围棋Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXContainerItemProxy section */
@@ -17,19 +17,19 @@
 			containerPortal = CAC0C86930480021007C3B7C /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = CAC0C87030480021007C3B7C;
-			remoteInfo = "Three-dimensional Go";
+			remoteInfo = "立体围棋";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		CAC0C87330480021007C3B7C /* Three-dimensional Go */ = {
+		CAC0C87330480021007C3B7C /* 立体围棋 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Three-dimensional Go";
+			path = "立体围棋";
 			sourceTree = "<group>";
 		};
-		CAD0C88230480021007C3B7C /* Three-dimensional GoTests */ = {
+		CAD0C88230480021007C3B7C /* 立体围棋Tests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Three-dimensional GoTests";
+			path = "立体围棋Tests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -55,8 +55,8 @@
 		CAC0C86830480021007C3B7C = {
 			isa = PBXGroup;
 			children = (
-				CAC0C87330480021007C3B7C /* Three-dimensional Go */,
-				CAD0C88230480021007C3B7C /* Three-dimensional GoTests */,
+				CAC0C87330480021007C3B7C /* 立体围棋 */,
+				CAD0C88230480021007C3B7C /* 立体围棋Tests */,
 				CAC0C87230480021007C3B7C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -64,8 +64,8 @@
 		CAC0C87230480021007C3B7C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				CAC0C87130480021007C3B7C /* Three-dimensional Go.app */,
-				CAD0C88130480021007C3B7C /* Three-dimensional GoTests.xctest */,
+				CAC0C87130480021007C3B7C /* 立体围棋.app */,
+				CAD0C88130480021007C3B7C /* 立体围棋Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -73,9 +73,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		CAC0C87030480021007C3B7C /* Three-dimensional Go */ = {
+		CAC0C87030480021007C3B7C /* 立体围棋 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CAC0C87C30480022007C3B7C /* Build configuration list for PBXNativeTarget "Three-dimensional Go" */;
+			buildConfigurationList = CAC0C87C30480022007C3B7C /* Build configuration list for PBXNativeTarget "立体围棋" */;
 			buildPhases = (
 				CAC0C86D30480021007C3B7C /* Sources */,
 				CAC0C86E30480021007C3B7C /* Frameworks */,
@@ -86,18 +86,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				CAC0C87330480021007C3B7C /* Three-dimensional Go */,
+				CAC0C87330480021007C3B7C /* 立体围棋 */,
 			);
-			name = "Three-dimensional Go";
+			name = "立体围棋";
 			packageProductDependencies = (
 			);
-			productName = "Three-dimensional Go";
-			productReference = CAC0C87130480021007C3B7C /* Three-dimensional Go.app */;
+			productName = "立体围棋";
+			productReference = CAC0C87130480021007C3B7C /* 立体围棋.app */;
 			productType = "com.apple.product-type.application";
 		};
-		CAD0C88030480021007C3B7C /* Three-dimensional GoTests */ = {
+		CAD0C88030480021007C3B7C /* 立体围棋Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CAD0C88830480021007C3B7C /* Build configuration list for PBXNativeTarget "Three-dimensional GoTests" */;
+			buildConfigurationList = CAD0C88830480021007C3B7C /* Build configuration list for PBXNativeTarget "立体围棋Tests" */;
 			buildPhases = (
 				CAD0C88330480021007C3B7C /* Sources */,
 				CAD0C88430480021007C3B7C /* Frameworks */,
@@ -109,13 +109,13 @@
 				CAD0C88630480021007C3B7C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				CAD0C88230480021007C3B7C /* Three-dimensional GoTests */,
+				CAD0C88230480021007C3B7C /* 立体围棋Tests */,
 			);
-			name = "Three-dimensional GoTests";
+			name = "立体围棋Tests";
 			packageProductDependencies = (
 			);
-			productName = "Three-dimensional GoTests";
-			productReference = CAD0C88130480021007C3B7C /* Three-dimensional GoTests.xctest */;
+			productName = "立体围棋Tests";
+			productReference = CAD0C88130480021007C3B7C /* 立体围棋Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -137,7 +137,7 @@
 					};
 				};
 			};
-			buildConfigurationList = CAC0C86C30480021007C3B7C /* Build configuration list for PBXProject "Three-dimensional Go" */;
+			buildConfigurationList = CAC0C86C30480021007C3B7C /* Build configuration list for PBXProject "立体围棋" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -151,8 +151,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				CAC0C87030480021007C3B7C /* Three-dimensional Go */,
-				CAD0C88030480021007C3B7C /* Three-dimensional GoTests */,
+				CAC0C87030480021007C3B7C /* 立体围棋 */,
+				CAD0C88030480021007C3B7C /* 立体围棋Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -194,7 +194,7 @@
 /* Begin PBXTargetDependency section */
 		CAD0C88630480021007C3B7C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = CAC0C87030480021007C3B7C /* Three-dimensional Go */;
+			target = CAC0C87030480021007C3B7C /* 立体围棋 */;
 			targetProxy = CAD0C88730480021007C3B7C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -331,6 +331,7 @@
 				DEVELOPMENT_TEAM = LF6C69B29M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "立体围棋";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -341,7 +342,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.Three-dimensional-Go";
+				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.LitiWeiqi";
+				PRODUCT_MODULE_NAME = "立体围棋";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -363,6 +365,7 @@
 				DEVELOPMENT_TEAM = LF6C69B29M;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "立体围棋";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -373,7 +376,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.Three-dimensional-Go";
+				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.LitiWeiqi";
+				PRODUCT_MODULE_NAME = "立体围棋";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -395,7 +399,7 @@
 				DEVELOPMENT_TEAM = LF6C69B29M;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.Three-dimensional-GoTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.LitiWeiqiTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -403,7 +407,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Three-dimensional Go.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Three-dimensional Go";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/立体围棋.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/立体围棋";
 			};
 			name = Debug;
 		};
@@ -417,7 +421,7 @@
 				DEVELOPMENT_TEAM = LF6C69B29M;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.Three-dimensional-GoTests";
+				PRODUCT_BUNDLE_IDENTIFIER = "xiaochenstudio.com.LitiWeiqiTests";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -425,14 +429,14 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Three-dimensional Go.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Three-dimensional Go";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/立体围棋.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/立体围棋";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		CAC0C86C30480021007C3B7C /* Build configuration list for PBXProject "Three-dimensional Go" */ = {
+		CAC0C86C30480021007C3B7C /* Build configuration list for PBXProject "立体围棋" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CAC0C87A30480022007C3B7C /* Debug */,
@@ -441,7 +445,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CAC0C87C30480022007C3B7C /* Build configuration list for PBXNativeTarget "Three-dimensional Go" */ = {
+		CAC0C87C30480022007C3B7C /* Build configuration list for PBXNativeTarget "立体围棋" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CAC0C87D30480022007C3B7C /* Debug */,
@@ -450,7 +454,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CAD0C88830480021007C3B7C /* Build configuration list for PBXNativeTarget "Three-dimensional GoTests" */ = {
+		CAD0C88830480021007C3B7C /* Build configuration list for PBXNativeTarget "立体围棋Tests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CAD0C88930480021007C3B7C /* Debug */,

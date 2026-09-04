@@ -1,10 +1,10 @@
-# Three-dimensional Go agent instructions
+# 立体围棋 agent instructions
 
 ## Start here
 
-- Rules, scoring, AR selection, rendering, or synchronization changes: read `docs/plans/2026-09-03-three-dimensional-go-design.md` first.
-- Planned implementation work: read the matching task in `docs/plans/2026-09-03-three-dimensional-go-implementation.md` and execute only that task's scope.
-- Preserve user-owned `Three-dimensional Go.xcodeproj/xcuserdata/`; never stage or delete it.
+- Rules, scoring, AR selection, rendering, or synchronization changes: read `docs/plans/2026-09-03-立体围棋-design.md` first.
+- Planned implementation work: read the matching task in `docs/plans/2026-09-03-立体围棋-implementation.md` and execute only that task's scope.
+- Preserve user-owned `立体围棋.xcodeproj/xcuserdata/`; never stage or delete it.
 
 ## Architectural invariants
 

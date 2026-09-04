@@ -1,6 +1,6 @@
 import Testing
 
-@testable import Three_dimensional_Go
+@testable import 立体围棋
 
 /// `3d-go/1` 落子事务测试：六向邻接、棋块与气、提子、自杀禁止，
 /// 以及每一个被拒绝动作的完整状态原子性。

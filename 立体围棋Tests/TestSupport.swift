@@ -1,6 +1,6 @@
 import Testing
 
-@testable import Three_dimensional_Go
+@testable import 立体围棋
 
 /// 断言动作被规则核心拒绝，且拒绝前后的完整权威状态逐字段相等。
 ///

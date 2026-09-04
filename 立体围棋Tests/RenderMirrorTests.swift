@@ -1,6 +1,6 @@
 import Testing
 
-@testable import Three_dimensional_Go
+@testable import 立体围棋
 
 /// 不可变快照、修订号、棋盘摘要与渲染镜像巡检测试。
 ///
