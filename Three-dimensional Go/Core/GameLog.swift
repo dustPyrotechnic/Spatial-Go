@@ -43,6 +43,11 @@ nonisolated struct GameLog: Hashable, Sendable {
     }
 
     /// 追加一条已接受动作记录。
+    ///
+    /// - Parameters:
+    ///   - revision: 接受该动作后的状态修订号。
+    ///   - action: 已经规范化的完整动作载荷。`submitDeadGroups` 必须先完成校验、
+    ///     去重和 ``GroupID`` 规范排序，等价的乱序输入才能产生完全相同的日志。
     mutating func append(revision: UInt64, action: GameAction) {
         entries.append(GameLogEntry(revision: revision, action: action))
     }

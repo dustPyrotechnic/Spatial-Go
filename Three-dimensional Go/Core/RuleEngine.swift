@@ -4,28 +4,48 @@ import Foundation
 nonisolated enum RuleViolation: Error, Equatable, Sendable {
     case wrongPhase, wrongPlayer, outOfBounds, occupied
     case suicide, superko, arithmeticOverflow
+    /// 该方在本轮审核中已经提交过死棋提案。
+    case alreadySubmitted(Stone)
+    /// 提案携带的审核轮次不是当前活动轮次。
+    case staleReviewID(ReviewID)
+    /// 提案中的棋块标识与审核棋盘上的实际棋块不符。
+    case invalidDeadGroup(GroupID)
 }
 
 /// `3d-go/1` 规则引擎。
 ///
-/// 所有动作都按“复制—校验—提交”执行：任何被拒绝的动作都不会修改棋盘、轮次、
-/// 提子数、修订号或历史。
+/// 所有动作都按“复制—校验—提交”执行：候选状态在私有副本上构造，任何被拒绝的动作
+/// 都不会修改棋盘、轮次、提子数、修订号、超级劫历史、权威日志或死棋提案。
 nonisolated struct RuleEngine: Sendable {
-    /// 当前权威规则状态。
-    private(set) var state: GameState
+    /// 私有权威状态。
+    private(set) var authoritative: AuthoritativeGameState
     /// 计算超级劫摘要使用的实现。
     private let digester: any StateKeyDigesting
+
+    /// 当前规则状态。
+    var state: GameState { authoritative.state }
+    /// 当前公共状态投影。
+    var publicState: PublicGameState { authoritative.publicState }
 
     init(
         configuration: GameConfiguration,
         digester: any StateKeyDigesting = StateKeyDigestV1()
     ) {
-        self.state = GameState(configuration: configuration, digester: digester)
+        self.authoritative = AuthoritativeGameState(
+            configuration: configuration, digester: digester)
         self.digester = digester
     }
 
     init(state: GameState, digester: any StateKeyDigesting = StateKeyDigestV1()) {
-        self.state = state
+        self.authoritative = AuthoritativeGameState(state: state)
+        self.digester = digester
+    }
+
+    init(
+        authoritative: AuthoritativeGameState,
+        digester: any StateKeyDigesting = StateKeyDigestV1()
+    ) {
+        self.authoritative = authoritative
         self.digester = digester
     }
 
@@ -50,62 +70,83 @@ nonisolated struct RuleEngine: Sendable {
     /// 应用一个动作。
     ///
     /// - Parameter action: 请求的动作。
-    /// - Returns: 已接受动作产生的状态增量。
-    /// - Throws: 校验失败时抛出 ``RuleViolation``，且状态保持不变。
+    /// - Returns: 已接受动作产生的状态增量与公共事件。
+    /// - Throws: 校验失败时抛出 ``RuleViolation``，且全部状态保持不变。
     @discardableResult
     mutating func apply(_ action: GameAction) throws -> GameTransition {
+        var candidate = authoritative
+        let transition: GameTransition
         switch action {
         case let .place(actor, position):
-            return try applyPlacement(actor: actor, position: position, action: action)
+            transition = try applyPlacement(
+                to: &candidate, actor: actor, position: position, action: action)
+        case let .pass(actor):
+            transition = try applyPass(to: &candidate, actor: actor, action: action)
+        case let .resign(actor):
+            transition = try applyResignation(to: &candidate, actor: actor, action: action)
+        case let .submitDeadGroups(actor, groups):
+            transition = try applySubmission(
+                to: &candidate, actor: actor, groups: groups, action: action)
+        case let .resume(actor):
+            transition = try applyResume(to: &candidate, actor: actor, action: action)
         }
+        authoritative = candidate
+        return transition
     }
 
-    private mutating func applyPlacement(
+    // MARK: - 落子
+
+    private func applyPlacement(
+        to candidate: inout AuthoritativeGameState,
         actor: Stone,
         position: GridPosition,
         action: GameAction
     ) throws -> GameTransition {
-        guard state.phase == .playing else { throw RuleViolation.wrongPhase }
-        guard actor == state.nextPlayer else { throw RuleViolation.wrongPlayer }
-        guard state.board.contains(position) else { throw RuleViolation.outOfBounds }
-        guard state.board[position] == nil else { throw RuleViolation.occupied }
+        guard candidate.state.phase == .playing else { throw RuleViolation.wrongPhase }
+        guard actor == candidate.state.nextPlayer else { throw RuleViolation.wrongPlayer }
+        guard candidate.state.board.contains(position) else { throw RuleViolation.outOfBounds }
+        guard candidate.state.board[position] == nil else { throw RuleViolation.occupied }
 
-        var candidate = state.board
-        candidate[position] = actor
+        var board = candidate.state.board
+        board[position] = actor
 
         let capturedPositions = RuleEngine.capturedPositions(
-            on: &candidate,
+            on: &board,
             around: position,
             capturedColor: actor.opponent
         )
 
-        guard let own = candidate.groupAndLiberties(at: position), !own.liberties.isEmpty else {
+        guard let own = board.groupAndLiberties(at: position), !own.liberties.isEmpty else {
             throw RuleViolation.suicide
         }
 
-        let key = StateKey(board: candidate, nextPlayer: actor.opponent)
+        let key = StateKey(board: board, nextPlayer: actor.opponent)
         let digest = digester.digest(key)
-        guard !state.superkoSeen.contains(key, digest: digest) else {
+        guard !candidate.state.superkoSeen.contains(key, digest: digest) else {
             throw RuleViolation.superko
         }
 
-        var committed = state
-        try committed.commitPlacement(
-            board: candidate,
+        try candidate.commitPlacement(
+            board: board,
             capturedCount: capturedPositions.count,
             actor: actor,
             stateKey: key,
             digest: digest,
             action: action
         )
-        state = committed
 
+        let revision = candidate.state.revision
         return GameTransition(
             action: action,
-            revision: state.revision,
+            revision: revision,
             placedStone: PlacedStone(position: position, stone: actor),
             capturedPositions: capturedPositions,
-            nextPlayer: state.nextPlayer
+            nextPlayer: candidate.state.nextPlayer,
+            events: [
+                .placed(
+                    actor: actor, position: position, captured: capturedPositions,
+                    revision: revision)
+            ]
         )
     }
 
@@ -135,5 +176,179 @@ nonisolated struct RuleEngine: Sendable {
             board[stone] = nil
         }
         return doomed.sorted { board.linearIndex(of: $0) < board.linearIndex(of: $1) }
+    }
+
+    // MARK: - 停着
+
+    private func applyPass(
+        to candidate: inout AuthoritativeGameState,
+        actor: Stone,
+        action: GameAction
+    ) throws -> GameTransition {
+        guard candidate.state.phase == .playing else { throw RuleViolation.wrongPhase }
+        guard actor == candidate.state.nextPlayer else { throw RuleViolation.wrongPlayer }
+
+        // 停着豁免提交前的超级劫重复拒绝，但接受后仍写入完整状态键。
+        let key = StateKey(board: candidate.state.board, nextPlayer: actor.opponent)
+        let digest = digester.digest(key)
+        let enteredReview = try candidate.commitPass(
+            actor: actor, stateKey: key, digest: digest, action: action)
+
+        let revision = candidate.state.revision
+        var events: [PublicGameEvent] = [
+            .passed(
+                actor: actor, consecutivePasses: candidate.state.consecutivePasses,
+                revision: revision)
+        ]
+        if enteredReview, let reviewID = candidate.state.currentReviewID {
+            events.append(.enteredScoringReview(reviewID: reviewID, revision: revision))
+        }
+        return GameTransition(
+            action: action,
+            revision: revision,
+            placedStone: nil,
+            capturedPositions: [],
+            nextPlayer: candidate.state.nextPlayer,
+            events: events
+        )
+    }
+
+    // MARK: - 认输
+
+    private func applyResignation(
+        to candidate: inout AuthoritativeGameState,
+        actor: Stone,
+        action: GameAction
+    ) throws -> GameTransition {
+        guard candidate.state.phase == .playing else { throw RuleViolation.wrongPhase }
+        guard actor == candidate.state.nextPlayer else { throw RuleViolation.wrongPlayer }
+
+        try candidate.commitResign(actor: actor, action: action)
+
+        let revision = candidate.state.revision
+        var events: [PublicGameEvent] = [.resigned(actor: actor, revision: revision)]
+        if let result = candidate.state.result {
+            events.append(.finished(result: result, revision: revision))
+        }
+        return GameTransition(
+            action: action,
+            revision: revision,
+            placedStone: nil,
+            capturedPositions: [],
+            nextPlayer: candidate.state.nextPlayer,
+            events: events
+        )
+    }
+
+    // MARK: - 死棋提案
+
+    private func applySubmission(
+        to candidate: inout AuthoritativeGameState,
+        actor: Stone,
+        groups: [GroupID],
+        action: GameAction
+    ) throws -> GameTransition {
+        guard candidate.state.phase == .scoringReview,
+            let reviewID = candidate.state.currentReviewID
+        else { throw RuleViolation.wrongPhase }
+        guard candidate.deadGroupProposals[actor] == nil else {
+            throw RuleViolation.alreadySubmitted(actor)
+        }
+
+        // 审核期间棋盘不变，因此当前棋盘就是本轮固定的审核快照。
+        let board = candidate.state.board
+        for group in groups {
+            guard group.reviewID == reviewID else {
+                throw RuleViolation.staleReviewID(group.reviewID)
+            }
+            guard board.contains(group.anchor), board[group.anchor] == group.color,
+                let stones = board.groupAndLiberties(at: group.anchor)?.stones,
+                stones.min() == group.anchor
+            else { throw RuleViolation.invalidDeadGroup(group) }
+        }
+
+        let normalized = Array(Set(groups)).sorted()
+        let proposal = DeadGroupProposal(reviewID: reviewID, groups: normalized)
+        let normalizedAction = GameAction.submitDeadGroups(actor: actor, groups: normalized)
+
+        let opponentProposal = candidate.deadGroupProposals[actor.opponent]
+        var finalBoard: Board?
+        var result: GameResult?
+        if let opponentProposal, opponentProposal.groups == normalized {
+            var scored = board
+            var deadPositions = Set<GridPosition>()
+            for group in normalized {
+                guard let stones = scored.groupAndLiberties(at: group.anchor)?.stones else {
+                    continue
+                }
+                deadPositions.formUnion(stones)
+            }
+            for position in deadPositions {
+                scored[position] = nil
+            }
+            let breakdown = TerritoryScorer.score(
+                board: board,
+                removingDeadStones: deadPositions,
+                komiHalfPoints: candidate.state.configuration.komiHalfPoints
+            )
+            finalBoard = scored
+            result = .areaScore(
+                AgreedScoreOutcome(
+                    breakdown: breakdown, reviewID: reviewID, agreedDeadGroups: normalized))
+        }
+
+        try candidate.commitReviewSubmission(
+            proposal: proposal,
+            actor: actor,
+            action: normalizedAction,
+            finalBoard: finalBoard,
+            result: result
+        )
+
+        let revision = candidate.state.revision
+        var events: [PublicGameEvent] = [.deadGroupsSubmitted(actor: actor, revision: revision)]
+        if let opponentProposal {
+            let black = actor == .black ? normalized : opponentProposal.groups
+            let white = actor == .white ? normalized : opponentProposal.groups
+            events.append(
+                .deadGroupsRevealed(
+                    black: black, white: white, agreed: black == white, revision: revision))
+        }
+        if let result {
+            events.append(.finished(result: result, revision: revision))
+        }
+        return GameTransition(
+            action: normalizedAction,
+            revision: revision,
+            placedStone: nil,
+            capturedPositions: [],
+            nextPlayer: candidate.state.nextPlayer,
+            events: events
+        )
+    }
+
+    // MARK: - 恢复对局
+
+    private func applyResume(
+        to candidate: inout AuthoritativeGameState,
+        actor: Stone,
+        action: GameAction
+    ) throws -> GameTransition {
+        guard candidate.state.phase == .scoringReview else { throw RuleViolation.wrongPhase }
+
+        try candidate.commitResume(action: action)
+
+        let revision = candidate.state.revision
+        return GameTransition(
+            action: action,
+            revision: revision,
+            placedStone: nil,
+            capturedPositions: [],
+            nextPlayer: candidate.state.nextPlayer,
+            events: [
+                .resumed(
+                    actor: actor, nextPlayer: candidate.state.nextPlayer, revision: revision)
+            ]
+        )
     }
 }

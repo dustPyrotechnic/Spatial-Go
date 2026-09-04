@@ -6,6 +6,28 @@ import Foundation
 nonisolated enum GameAction: Hashable, Codable, Sendable {
     /// 由 `actor` 在 `position` 落子。
     case place(actor: Stone, position: GridPosition)
+    /// 由 `actor` 停着。
+    case pass(actor: Stone)
+    /// 由 `actor` 认输。
+    case resign(actor: Stone)
+    /// 由 `actor` 提交完整死棋块集合。
+    ///
+    /// 写入权威日志的载荷必须是已校验、去重并按 ``GroupID`` 规范排序后的集合，
+    /// 输入顺序不得改变日志字节。
+    case submitDeadGroups(actor: Stone, groups: [GroupID])
+    /// 由 `actor` 请求恢复对局。
+    case resume(actor: Stone)
+
+    /// 请求该动作的一方。
+    var actor: Stone {
+        switch self {
+        case let .place(actor, _): actor
+        case let .pass(actor): actor
+        case let .resign(actor): actor
+        case let .submitDeadGroups(actor, _): actor
+        case let .resume(actor): actor
+        }
+    }
 }
 
 /// 一次已接受动作产生的状态变化量。
@@ -22,4 +44,6 @@ nonisolated struct GameTransition: Hashable, Sendable {
     let capturedPositions: [GridPosition]
     /// 接受该动作后的下一行棋方。
     let nextPlayer: Stone
+    /// 本次转换对外发布的公共事件，按发生顺序排列。
+    let events: [PublicGameEvent]
 }

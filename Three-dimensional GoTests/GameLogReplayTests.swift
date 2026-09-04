@@ -121,6 +121,66 @@ struct GameLogReplayTests {
         #expect(first.state.log == engine.state.log)
     }
 
+    // MARK: - 停着、认输与审核的重放
+
+    @Test func replayReproducesPassCountersAndReviewEntry() throws {
+        var engine = RuleEngine(configuration: try GameConfiguration(width: 3, height: 3, depth: 1))
+        _ = try engine.apply(.pass(actor: .black))
+        _ = try engine.apply(.pass(actor: .white))
+        let replayed = try RuleEngine.replaying(engine.state.log)
+        #expect(replayed.state == engine.state)
+        #expect(replayed.state.phase == .scoringReview)
+        #expect(replayed.state.consecutivePasses == 2)
+        #expect(replayed.state.currentReviewID == ReviewID(value: 1))
+    }
+
+    @Test func replayReproducesResignation() throws {
+        var engine = RuleEngine(configuration: try GameConfiguration(width: 3, height: 3, depth: 1))
+        _ = try engine.apply(.place(actor: .black, position: GridPosition(x: 1, y: 1, z: 0)))
+        _ = try engine.apply(.resign(actor: .white))
+        let replayed = try RuleEngine.replaying(engine.state.log)
+        #expect(replayed.state == engine.state)
+        #expect(replayed.state.result == .resignation(winner: .black, loser: .white))
+        #expect(replayed.state.phase == .finished)
+    }
+
+    @Test func replayReproducesAgreedScoringAndResumePaths() throws {
+        let configuration = try GameConfiguration(
+            width: 3, height: 3, depth: 1,
+            initialStones: [
+                PlacedStone(position: GridPosition(x: 0, y: 0, z: 0), stone: .black),
+                PlacedStone(position: GridPosition(x: 2, y: 2, z: 0), stone: .white),
+            ]
+        )
+        var engine = RuleEngine(configuration: configuration)
+        _ = try engine.apply(.pass(actor: .black))
+        _ = try engine.apply(.pass(actor: .white))
+        _ = try engine.apply(.resume(actor: .white))
+        _ = try engine.apply(.pass(actor: .black))
+        _ = try engine.apply(.pass(actor: .white))
+        let reviewID = try #require(engine.state.currentReviewID)
+        let dead = GroupID(reviewID: reviewID, color: .white, anchor: GridPosition(x: 2, y: 2, z: 0))
+        _ = try engine.apply(.submitDeadGroups(actor: .black, groups: [dead]))
+        _ = try engine.apply(.submitDeadGroups(actor: .white, groups: [dead]))
+
+        let replayed = try RuleEngine.replaying(engine.state.log)
+        #expect(replayed.state == engine.state)
+        #expect(replayed.state.phase == .finished)
+        #expect(replayed.state.reviewIndex == 2)
+        #expect(replayed.authoritative == engine.authoritative)
+    }
+
+    @Test func rejectedEndgameActionsLeaveTheLogUnchanged() throws {
+        var engine = RuleEngine(configuration: try GameConfiguration(width: 3, height: 3, depth: 1))
+        _ = try engine.apply(.pass(actor: .black))
+        let before = engine.authoritative
+        expectAtomicRejection(&engine, .pass(actor: .black), .wrongPlayer)
+        expectAtomicRejection(&engine, .resign(actor: .black), .wrongPlayer)
+        expectAtomicRejection(&engine, .resume(actor: .white), .wrongPhase)
+        #expect(engine.authoritative == before)
+        #expect(engine.state.log.entries.count == 1)
+    }
+
     @Test func replayReproducesCapturesAndCaptureCounters() throws {
         var engine = RuleEngine(configuration: try StateDigestTests.singleKoConfiguration())
         _ = try engine.apply(.place(actor: .black, position: GridPosition(x: 1, y: 1, z: 0)))

@@ -4,8 +4,8 @@ import Testing
 
 /// 断言动作被规则核心拒绝，且拒绝前后的完整权威状态逐字段相等。
 ///
-/// `GameState` 是 `Equatable` 的，因此这一次比较同时覆盖棋盘、轮次、阶段、提子数、
-/// 修订号、超级劫历史和权威日志。
+/// `AuthoritativeGameState` 是 `Equatable` 的，因此这一次比较同时覆盖棋盘、轮次、阶段、
+/// 提子数、修订号、超级劫历史、权威日志和私有死棋提案。
 ///
 /// - Parameters:
 ///   - engine: 待测规则引擎。
@@ -18,9 +18,9 @@ func expectAtomicRejection(
     _ violation: RuleViolation,
     sourceLocation: SourceLocation = #_sourceLocation
 ) {
-    let before = engine.state
+    let before = engine.authoritative
     #expect(throws: violation, sourceLocation: sourceLocation) {
         try engine.apply(action)
     }
-    #expect(engine.state == before, sourceLocation: sourceLocation)
+    #expect(engine.authoritative == before, sourceLocation: sourceLocation)
 }
